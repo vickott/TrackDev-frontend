@@ -1,11 +1,16 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
+import Inicio from './pages/Inicio'
 
 function App() {
   return (
-    <div>
+    <BrowserRouter>
       <h1>TrackDev</h1>
-      <Login />
-    </div>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Inicio />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 

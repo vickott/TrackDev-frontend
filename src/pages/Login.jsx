@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { login } from '../api/auth'
 
 //useState guarda el estado de las variables email, password, error y mensaje. 
@@ -13,6 +14,7 @@ function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [mensaje, setMensaje] = useState('')
+  const navigate = useNavigate()  
 
   async function manejarSubmit(e) {
     e.preventDefault()
@@ -22,7 +24,7 @@ function Login() {
       const datos = await login(email, password)
       localStorage.setItem('token', datos.token)
       localStorage.setItem('usuario', JSON.stringify(datos.usuario))
-      setMensaje('Bienvenido/a ' + datos.usuario.nombre)
+      navigate('/')
     } catch (err) {
       setError(err.response?.data?.message || 'No se pudo conectar con el servidor')
     }
