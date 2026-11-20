@@ -16,7 +16,12 @@ function Inicio() {
       <p>Hola {usuario?.nombre} {usuario?.apellido} ({usuario?.rol})</p>
       <button onClick={cerrarSesion}>Cerrar sesión</button>
       <p><Link to="/clientes">Ir a Clientes</Link></p>
-    </div>
+      <p><Link to="/proyectos">Ir a Proyectos</Link></p>
+      <p><Link to="/modulos">Ir a Módulos</Link></p>  
+      <p><Link to="/tareas">Ir a Tareas</Link></p>
+      <p><Link to="/perfiles">Ir a Perfiles</Link></p>      
+      
+      </div>
   )
 }
 
