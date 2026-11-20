@@ -1,8 +1,21 @@
+import { useNavigate, Link } from 'react-router-dom'
+
 function Inicio() {
+  const navigate = useNavigate()
+  const usuario = JSON.parse(localStorage.getItem('usuario'))
+
+  function cerrarSesion() {
+    localStorage.removeItem('token')
+    localStorage.removeItem('usuario')
+    navigate('/login')
+  }
+
   return (
     <div>
       <h2>Inicio</h2>
-      <p>Acá va a ir el menú y el dashboard.</p>
+      <p>Hola {usuario?.nombre} {usuario?.apellido} ({usuario?.rol})</p>
+      <button onClick={cerrarSesion}>Cerrar sesión</button>
+      <p><Link to="/clientes">Ir a Clientes</Link></p>
     </div>
   )
 }
