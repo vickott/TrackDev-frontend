@@ -4,6 +4,8 @@ import { obtenerProyecto } from '../api/proyectos'
 import ResumenProyecto from '../components/ResumenProyecto'
 import { COLOR_ESTADO_PROYECTO } from '../utils/formato'
 import ModulosYTareas from '../components/ModulosYTareas'
+import HorasProyecto from '../components/HorasProyecto'
+
 
 function ProyectoDetalle() {
   const { id } = useParams()
@@ -47,10 +49,16 @@ function ProyectoDetalle() {
             <i className="bi bi-diagram-3 me-1"></i>Módulos y tareas
           </button>
         </li>
+                <li className="nav-item">
+          <button className={`nav-link ${solapa === 'horas' ? 'active' : ''}`} onClick={() => setSolapa('horas')}>
+            <i className="bi bi-clock-history me-1"></i>Horas cargadas
+          </button>
+        </li>
       </ul>
 
       {solapa === 'resumen' && <ResumenProyecto proyectoId={id} />}
       {solapa === 'modulos' && <ModulosYTareas proyectoId={id} />}
+      {solapa === 'horas' && <HorasProyecto proyectoId={id} />}
     </div>
   )
 }

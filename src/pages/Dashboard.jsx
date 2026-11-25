@@ -1,183 +1,160 @@
 import { useEffect, useState } from 'react'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer } from 'recharts'
+import { Link } from 'react-router-dom'
 import { listarProyectos } from '../api/proyectos'
+import { listarClientes } from '../api/clientes'
+import { listarUsuarios } from '../api/usuarios'
+import { listarPerfiles } from '../api/perfiles'
 import { listarAlertas, obtenerRentabilidad, obtenerDesvioProyecto } from '../api/reportes'
+import { plata, colorSigno, colorBarra, COLOR_ESTADO_PROYECTO } from '../utils/formato'
 
-// Muestra un número como plata: 144000 -> $144.000,00 y -500 -> -$500,00
-function plata(valor) {
-  const numero = Number(valor ?? 0)
-  const texto = Math.abs(numero).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  return (numero < 0 ? '-$' : '$') + texto
-}
-
-// Verde si es positivo, rojo si es negativo
-function colorSigno(valor) {
-  return Number(valor) < 0 ? 'text-danger' : 'text-success'
-}
-
-// Tarjetita de indicador (se usa 4 veces)
-function Indicador({ titulo, valor, claseColor = '' }) {
+// Botón grande con ícono que lleva a una sección
+function Acceso({ to, icono, titulo, detalle }) {
   return (
-    <div className="col-md-3">
-      <div className="card text-center h-100">
-        <div className="card-body">
-          <div className="text-muted small text-uppercase">{titulo}</div>
-          <div className={`fs-4 fw-bold ${claseColor}`}>{valor}</div>
+    <div className="col-6 col-md-3">
+      <Link to={to} className="card acceso text-center h-100">
+        <div className="card-body py-4">
+          <i className={`bi ${icono} icono`}></i>
+          <div className="fw-semibold mt-2">{titulo}</div>
+          <div className="text-muted small">{detalle}</div>
         </div>
+      </Link>
+    </div>
+  )
+}
+
+// Barrita de % consumido
+function Barra({ porcentaje }) {
+  return (
+    <div className="progress" style={{ height: '16px', minWidth: '90px' }}>
+      <div className={`progress-bar ${colorBarra(porcentaje)}`} style={{ width: `${Math.min(porcentaje, 100)}%` }}>
+        {porcentaje}%
       </div>
     </div>
   )
 }
 
+// "1 activo" / "2 activos"
+function activos(cantidad) {
+  return `${cantidad} ${cantidad === 1 ? 'activo' : 'activos'}`
+}
+
 function Dashboard() {
+  const [cantidades, setCantidades] = useState({ proyectos: 0, clientes: 0, usuarios: 0, perfiles: 0 })
   const [alertas, setAlertas] = useState([])
-  const [proyectos, setProyectos] = useState([])
-  const [proyectoId, setProyectoId] = useState('')
-  const [rentabilidad, setRentabilidad] = useState(null)
-  const [desvio, setDesvio] = useState(null)
+  const [resumen, setResumen] = useState([]) // proyectos activos con sus números
   const [error, setError] = useState('')
 
   useEffect(() => {
-    listarAlertas()
-      .then(setAlertas)
-      .catch(() => setError('No se pudieron cargar las alertas'))
-    listarProyectos()
-      .then(setProyectos)
-      .catch(() => setError('No se pudieron cargar los proyectos'))
+    async function cargar() {
+      try {
+        // Pedimos todo a la vez
+        const [proyectos, clientes, usuarios, perfiles, alertasDelBack] = await Promise.all([
+          listarProyectos(),
+          listarClientes(),
+          listarUsuarios(),
+          listarPerfiles(),
+          listarAlertas(),
+        ])
+
+        const proyectosActivos = proyectos.filter((p) => p.estado === 'PLANIFICADO' || p.estado === 'EN_CURSO')
+
+        setCantidades({
+          proyectos: proyectosActivos.length,
+          clientes: clientes.filter((c) => c.activo).length,
+          usuarios: usuarios.filter((u) => u.activo).length,
+          perfiles: perfiles.filter((p) => p.activo).length,
+        })
+        setAlertas(alertasDelBack)
+
+        // Para cada proyecto activo, sus números de rentabilidad y desvío
+        const conNumeros = await Promise.all(
+          proyectosActivos.map(async (p) => {
+            const [rentabilidad, desvio] = await Promise.all([obtenerRentabilidad(p.id), obtenerDesvioProyecto(p.id)])
+            return { ...p, rentabilidad, desvio }
+          })
+        )
+        setResumen(conNumeros)
+      } catch {
+        setError('No se pudo cargar el tablero')
+      }
+    }
+    cargar()
   }, [])
-
-  useEffect(() => {
-    setRentabilidad(null)
-    setDesvio(null)
-    if (!proyectoId) return
-    Promise.all([obtenerRentabilidad(proyectoId), obtenerDesvioProyecto(proyectoId)])
-      .then(([rent, desv]) => {
-        setRentabilidad(rent)
-        setDesvio(desv)
-      })
-      .catch(() => setError('No se pudieron cargar los reportes del proyecto'))
-  }, [proyectoId])
-
-  // Datos para los gráficos (Recharts necesita una lista de objetos)
-  const datosHoras = rentabilidad
-    ? [{ nombre: 'Horas', Estimado: Number(rentabilidad.horasEstimadas), Real: Number(rentabilidad.horasReales) }]
-    : []
-  const datosCosto = rentabilidad
-    ? [{ nombre: 'Costo', Estimado: Number(rentabilidad.costoEstimado), Real: Number(rentabilidad.costoReal) }]
-    : []
 
   return (
     <div>
       {error && <div className="alert alert-danger">{error}</div>}
 
-      <h5 className="mb-3">Alertas</h5>
+      {/* Botones grandes */}
+      <div className="row g-3 mb-4">
+        <Acceso to="/proyectos" icono="bi-folder2-open" titulo="Proyectos" detalle={activos(cantidades.proyectos)} />
+        <Acceso to="/clientes" icono="bi-building" titulo="Clientes" detalle={activos(cantidades.clientes)} />
+        <Acceso to="/usuarios" icono="bi-people" titulo="Usuarios" detalle={activos(cantidades.usuarios)} />
+        <Acceso to="/perfiles" icono="bi-person-badge" titulo="Perfiles" detalle={activos(cantidades.perfiles)} />
+      </div>
+
+      {/* Alertas */}
+      <h5 className="mb-3"><i className="bi bi-exclamation-triangle me-2"></i>Alertas</h5>
       {alertas.length === 0 ? (
         <div className="alert alert-success">Todo en orden: nada superó el 80% de lo estimado.</div>
       ) : (
         alertas.map((a, i) => (
-          <div key={i} className={`alert ${a.nivel === 'CRITICO' ? 'alert-danger' : 'alert-warning'} py-2`}>
-            <strong>{a.nivel === 'CRITICO' ? 'Crítico' : 'Advertencia'}:</strong>{' '}
-            {a.tipo === 'TAREA' ? 'la tarea' : 'el proyecto'} <strong>{a.nombre}</strong> consumió el{' '}
-            <strong>{a.porcentajeConsumido}%</strong> de {a.metrica === 'HORAS' ? 'las horas estimadas' : 'el costo estimado'}.
+          <div key={i} className={`alert ${a.nivel === 'CRITICO' ? 'alert-danger' : 'alert-warning'} py-2 d-flex justify-content-between align-items-center`}>
+            <span>
+              <strong>{a.nivel === 'CRITICO' ? 'Crítico' : 'Advertencia'}:</strong>{' '}
+              {a.tipo === 'TAREA' ? 'la tarea' : 'el proyecto'} <strong>{a.nombre}</strong> consumió el{' '}
+              <strong>{a.porcentajeConsumido}%</strong> de {a.metrica === 'HORAS' ? 'las horas estimadas' : 'el costo estimado'}.
+            </span>
+            {a.tipo === 'PROYECTO' && (
+              <Link to={`/proyectos/${a.id}`} className="alert-link text-nowrap ms-3">
+                Ver proyecto <i className="bi bi-arrow-right"></i>
+              </Link>
+            )}
           </div>
         ))
       )}
 
-      <h5 className="mt-4 mb-3">Proyecto</h5>
-      <select className="form-select mb-4" value={proyectoId} onChange={(e) => setProyectoId(e.target.value)}>
-        <option value="">-- Elegí un proyecto para ver sus números --</option>
-        {proyectos.map((p) => (
-          <option key={p.id} value={p.id}>{p.nombre} ({p.estado})</option>
-        ))}
-      </select>
-
-      {rentabilidad && desvio && (
-        <>
-          <div className="row g-3 mb-4">
-            <Indicador titulo="Presupuesto de venta" valor={plata(rentabilidad.presupuestoVenta)} />
-            <Indicador titulo="Costo real" valor={plata(rentabilidad.costoReal)} />
-            <Indicador titulo="Rentabilidad real" valor={plata(rentabilidad.rentabilidadReal)} claseColor={colorSigno(rentabilidad.rentabilidadReal)} />
-            <Indicador titulo="Margen real" valor={`${rentabilidad.margenRealPorcentaje}%`} claseColor={colorSigno(rentabilidad.margenRealPorcentaje)} />
-          </div>
-
-          <div className="row g-3 mb-4">
-            <div className="col-md-6">
-              <div className="card h-100">
-                <div className="card-body">
-                  <h6 className="card-title">Horas: estimado vs. real</h6>
-                  <p className="text-muted small mb-2">
-                    Desvío: {desvio.desvioHoras} h · Consumido: {desvio.porcentajeConsumidoHoras}%
-                  </p>
-                  <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={datosHoras}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="nombre" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="Estimado" fill="#9DB8B9" radius={[6, 6, 0, 0]} />
-                      <Bar dataKey="Real" fill="#14808A" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="card h-100">
-                <div className="card-body">
-                  <h6 className="card-title">Costo: estimado vs. real</h6>
-                  <p className="text-muted small mb-2">
-                    Desvío: {plata(desvio.desvioCosto)} · Consumido: {desvio.porcentajeConsumidoCosto}%
-                  </p>
-                  <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={datosCosto}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="nombre" />
-                      <YAxis />
-                      <Tooltip formatter={(valor) => plata(valor)} />
-                      <Legend />
-                      <Bar dataKey="Estimado" fill="#9DB8B9" radius={[6, 6, 0, 0]} />
-                      <Bar dataKey="Real" fill="#F2A541" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="card-body">
-              <h6 className="card-title">Rentabilidad</h6>
-              <table className="table table-sm align-middle mb-0">
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>Estimado</th>
-                    <th>Real</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Costo</td>
-                    <td>{plata(rentabilidad.costoEstimado)}</td>
-                    <td>{plata(rentabilidad.costoReal)}</td>
-                  </tr>
-                  <tr>
-                    <td>Rentabilidad</td>
-                    <td className={colorSigno(rentabilidad.rentabilidadEstimada)}>{plata(rentabilidad.rentabilidadEstimada)}</td>
-                    <td className={colorSigno(rentabilidad.rentabilidadReal)}>{plata(rentabilidad.rentabilidadReal)}</td>
-                  </tr>
-                  <tr>
-                    <td>Margen</td>
-                    <td className={colorSigno(rentabilidad.margenEstimadoPorcentaje)}>{rentabilidad.margenEstimadoPorcentaje}%</td>
-                    <td className={colorSigno(rentabilidad.margenRealPorcentaje)}>{rentabilidad.margenRealPorcentaje}%</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>
-      )}
+      {/* Proyectos activos de un vistazo */}
+      <h5 className="mt-4 mb-3"><i className="bi bi-folder2-open me-2"></i>Proyectos activos</h5>
+      <div className="card">
+        <div className="card-body">
+          <table className="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Proyecto</th>
+                <th>Cliente</th>
+                <th>Estado</th>
+                <th>Horas</th>
+                <th>Horas consumidas</th>
+                <th>Costo consumido</th>
+                <th>Rentabilidad real</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {resumen.length === 0 && (
+                <tr><td colSpan="8" className="text-center text-muted">No hay proyectos activos</td></tr>
+              )}
+              {resumen.map((p) => (
+                <tr key={p.id}>
+                  <td className="fw-semibold">{p.nombre}</td>
+                  <td>{p.cliente?.razonSocial}</td>
+                  <td><span className={`badge ${COLOR_ESTADO_PROYECTO[p.estado]}`}>{p.estado}</span></td>
+                  <td>{p.rentabilidad.horasReales} / {p.rentabilidad.horasEstimadas} h</td>
+                  <td><Barra porcentaje={p.desvio.porcentajeConsumidoHoras} /></td>
+                  <td><Barra porcentaje={p.desvio.porcentajeConsumidoCosto} /></td>
+                  <td className={colorSigno(p.rentabilidad.rentabilidadReal)}>{plata(p.rentabilidad.rentabilidadReal)}</td>
+                  <td className="text-end">
+                    <Link to={`/proyectos/${p.id}`} className="btn btn-sm btn-primary">
+                      <i className="bi bi-eye me-1"></i>Ver
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }
