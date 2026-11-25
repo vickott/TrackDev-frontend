@@ -175,7 +175,7 @@ function Tareas() {
                   <td>
                     <button onClick={() => editar(t)}>Editar</button>
                     <button onClick={() => eliminar(t)}>Eliminar</button>
-                    <button onClick={() => setTareaEstimando(t)}>Estimación</button>
+                    <button onClick={() => setTareaEstimando(t)}>Detalle</button>
                   </td>
                 </tr>
               ))}

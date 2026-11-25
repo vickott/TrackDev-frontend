@@ -18,3 +18,8 @@ export async function actualizarRegistro(id, registro) {
 export async function eliminarRegistro(id) {
   await api.delete(`/registros-tiempo/${id}`)
 }
+
+export async function listarRegistrosPorTarea(tareaId) {
+  const respuesta = await api.get('/registros-tiempo', { params: { tareaId } })
+  return respuesta.data
+}

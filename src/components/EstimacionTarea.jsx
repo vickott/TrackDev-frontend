@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { obtenerEstimacion, crearEstimacion, actualizarEstimacion, eliminarEstimacion } from '../api/estimaciones'
 import { listarPerfiles } from '../api/perfiles'
+import { listarRegistrosPorTarea } from '../api/registros'
+import { obtenerDesvioTarea } from '../api/reportes'
 
 const formVacio = { perfilEstimadoId: '', horasEstimadas: '' }
 
@@ -9,29 +11,43 @@ function EstimacionTarea({ tarea, onCerrar }) {
   const [perfiles, setPerfiles] = useState([])
   const [form, setForm] = useState(formVacio)
   const [error, setError] = useState('')
-
+  // NUEVO: horas cargadas y desvío de la tarea
+  const [registros, setRegistros] = useState([])
+  const [desvio, setDesvio] = useState(null)
 
   function cargarEstimacion() {
     obtenerEstimacion(tarea.id)
       .then((est) => {
         setEstimacion(est)
         setForm({ perfilEstimadoId: est.perfilEstimado.id, horasEstimadas: est.horasEstimadas })
+        // NUEVO: si hay estimación, pedimos el desvío
+        obtenerDesvioTarea(tarea.id)
+          .then(setDesvio)
+          .catch(() => setDesvio(null))
       })
       .catch((err) => {
         // 404 = la tarea todavía no tiene estimación (no es un error)
         if (err.response?.status === 404) {
           setEstimacion(null)
           setForm(formVacio)
+          setDesvio(null)
         } else {
           setError('No se pudo cargar la estimación')
         }
       })
   }
 
-  // Cada vez que se elige otra tarea: recargar su estimación y los perfiles
+  // NUEVO
+  function cargarRegistros() {
+    listarRegistrosPorTarea(tarea.id)
+      .then(setRegistros)
+      .catch(() => setError('No se pudieron cargar las horas de la tarea'))
+  }
+
   useEffect(() => {
     setError('')
     cargarEstimacion()
+    cargarRegistros()
     listarPerfiles()
       .then((lista) => setPerfiles(lista.filter((p) => p.activo)))
       .catch(() => setError('No se pudieron cargar los perfiles'))
@@ -73,8 +89,9 @@ function EstimacionTarea({ tarea, onCerrar }) {
 
   return (
     <div style={{ border: '1px solid gray', padding: '10px', marginTop: '15px' }}>
-      <h3>Estimación de: {tarea.nombre}</h3>
+      <h3>Tarea: {tarea.nombre}</h3>
 
+      <h4>Estimación</h4>
       {estimacion ? (
         <p>
           Perfil: {estimacion.perfilEstimado.nombre} — Horas: {estimacion.horasEstimadas} —
@@ -104,6 +121,70 @@ function EstimacionTarea({ tarea, onCerrar }) {
       </form>
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      {/* NUEVO: desvío de la tarea */}
+      {desvio && (
+        <>
+          <h4>Estimado vs. real</h4>
+          <table border="1">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Estimado</th>
+                <th>Real</th>
+                <th>Desvío</th>
+                <th>% consumido</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Horas</td>
+                <td>{desvio.horasEstimadas}</td>
+                <td>{desvio.horasReales}</td>
+                <td>{desvio.desvioHoras}</td>
+                <td>{desvio.porcentajeConsumidoHoras}%</td>
+              </tr>
+              <tr>
+                <td>Costo</td>
+                <td>${desvio.costoEstimado}</td>
+                <td>${desvio.costoReal}</td>
+                <td>${desvio.desvioCosto}</td>
+                <td>{desvio.porcentajeConsumidoCosto}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </>
+      )}
+
+      {/* NUEVO: horas cargadas en la tarea */}
+      <h4>Horas cargadas</h4>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Usuario</th>
+            <th>Horas</th>
+            <th>Costo/hora</th>
+            <th>Costo real</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {registros.length === 0 && (
+            <tr><td colSpan="6">Todavía no se cargaron horas en esta tarea</td></tr>
+          )}
+          {registros.map((r) => (
+            <tr key={r.id}>
+              <td>{r.fecha}</td>
+              <td>{r.usuario?.nombre} {r.usuario?.apellido}</td>
+              <td>{r.horasTrabajadas}</td>
+              <td>${r.costoHoraAplicado}</td>
+              <td>${r.costoReal}</td>
+              <td>{r.descripcion}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
