@@ -1,3 +1,4 @@
+import { tokenVencido, limpiarSesion } from './sesion'
 import axios from 'axios'
 //#conexion con el backend
 const api = axios.create({
@@ -11,5 +12,18 @@ api.interceptors.request.use((config) => {
   }
   return config
 })
+
+api.interceptors.response.use(
+  (respuesta) => respuesta,
+  (error) => {
+    const token = localStorage.getItem('token')
+    const esLogin = error.config?.url?.includes('/auth/login')
+    if (!esLogin && (error.response?.status === 401 || (token && tokenVencido(token)))) {
+      limpiarSesion()
+      window.location.href = '/login'
+    }
+    return Promise.reject(error)
+  }
+)
 
 export default api

@@ -10,7 +10,6 @@ function EstimacionTarea({ tarea, onCerrar }) {
   const [form, setForm] = useState(formVacio)
   const [error, setError] = useState('')
 
-  const usuario = JSON.parse(localStorage.getItem('usuario'))
 
   function cargarEstimacion() {
     obtenerEstimacion(tarea.id)
@@ -48,7 +47,6 @@ function EstimacionTarea({ tarea, onCerrar }) {
     const datos = {
       perfilEstimadoId: Number(form.perfilEstimadoId),
       horasEstimadas: Number(form.horasEstimadas),
-      creadoPorId: usuario.id,
     }
     try {
       if (estimacion) {

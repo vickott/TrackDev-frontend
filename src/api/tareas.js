@@ -18,3 +18,8 @@ export async function actualizarTarea(id, tarea) {
 export async function eliminarTarea(id) {
   await api.delete(`/tareas/${id}`)
 }
+
+export async function listarTareasDisponibles() {
+  const respuesta = await api.get('/tareas/disponibles')
+  return respuesta.data
+}
