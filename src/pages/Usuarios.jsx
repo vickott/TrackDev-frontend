@@ -70,75 +70,94 @@ function Usuarios() {
 
   return (
     <div>
-      <h2>Usuarios</h2>
+      <h2 className="mb-4">Usuarios</h2>
 
-      <h3>Nuevo usuario</h3>
-      <form onSubmit={manejarSubmit}>
-        <div>
-          <label>Nombre *</label>
-          <input name="nombre" value={form.nombre} onChange={manejarCambio} required />
+      <div className="card shadow-sm mb-4">
+        <div className="card-body">
+          <h5 className="card-title mb-3">Nuevo usuario</h5>
+          <form onSubmit={manejarSubmit}>
+            <div className="row g-3">
+              <div className="col-md-4">
+                <label htmlFor="nombre" className="form-label">Nombre *</label>
+                <input id="nombre" name="nombre" className="form-control" value={form.nombre} onChange={manejarCambio} required />
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="apellido" className="form-label">Apellido *</label>
+                <input id="apellido" name="apellido" className="form-control" value={form.apellido} onChange={manejarCambio} required />
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="email" className="form-label">Email *</label>
+                <input id="email" type="email" name="email" className="form-control" value={form.email} onChange={manejarCambio} required />
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="password" className="form-label">Contraseña *</label>
+                <input id="password" type="password" name="password" className="form-control" value={form.password} onChange={manejarCambio} minLength={8} required />
+                <div className="form-text">Mínimo 8 caracteres.</div>
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="rol" className="form-label">Rol *</label>
+                <select id="rol" name="rol" className="form-select" value={form.rol} onChange={manejarCambio}>
+                  <option value="OPERADOR">OPERADOR</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="perfilId" className="form-label">Perfil {form.rol === 'OPERADOR' && '*'}</label>
+                <select id="perfilId" name="perfilId" className="form-select" value={form.perfilId} onChange={manejarCambio} required={form.rol === 'OPERADOR'}>
+                  <option value="">-- Sin perfil --</option>
+                  {perfiles.map((p) => (
+                    <option key={p.id} value={p.id}>{p.nombre} (${p.costoHora}/h)</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="mt-3">
+              <button type="submit" className="btn btn-primary">Crear</button>
+            </div>
+          </form>
         </div>
-        <div>
-          <label>Apellido *</label>
-          <input name="apellido" value={form.apellido} onChange={manejarCambio} required />
-        </div>
-        <div>
-          <label>Email *</label>
-          <input type="email" name="email" value={form.email} onChange={manejarCambio} required />
-        </div>
-        <div>
-          <label>Contraseña * (mínimo 8 caracteres)</label>
-          <input type="password" name="password" value={form.password} onChange={manejarCambio} minLength={8} required />
-        </div>
-        <div>
-          <label>Rol *</label>
-          <select name="rol" value={form.rol} onChange={manejarCambio}>
-            <option value="OPERADOR">OPERADOR</option>
-            <option value="ADMIN">ADMIN</option>
-          </select>
-        </div>
-        <div>
-          <label>Perfil {form.rol === 'OPERADOR' && '*'}</label>
-          <select name="perfilId" value={form.perfilId} onChange={manejarCambio} required={form.rol === 'OPERADOR'}>
-            <option value="">-- Sin perfil --</option>
-            {perfiles.map((p) => (
-              <option key={p.id} value={p.id}>{p.nombre} (${p.costoHora}/h)</option>
-            ))}
-          </select>
-        </div>
-        <button type="submit">Crear</button>
-      </form>
+      </div>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <div className="alert alert-danger">{error}</div>}
 
-      <table border="1">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Perfil</th>
-            <th>Activo</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.map((u) => (
-            <tr key={u.id}>
-              <td>{u.nombre} {u.apellido}</td>
-              <td>{u.email}</td>
-              <td>{u.rol}</td>
-              <td>{u.perfil?.nombre}</td>
-              <td>{u.activo ? 'Sí' : 'No'}</td>
-              <td>
-                {u.activo && u.id !== usuarioActual?.id && (
-                  <button onClick={() => desactivar(u)}>Desactivar</button>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="card shadow-sm">
+        <div className="card-body">
+          <table className="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Perfil</th>
+                <th>Estado</th>
+                <th className="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {usuarios.map((u) => (
+                <tr key={u.id}>
+                  <td>{u.nombre} {u.apellido}</td>
+                  <td>{u.email}</td>
+                  <td>
+                    <span className={`badge ${u.rol === 'ADMIN' ? 'bg-dark' : 'bg-info text-dark'}`}>{u.rol}</span>
+                  </td>
+                  <td>{u.perfil?.nombre}</td>
+                  <td>
+                    {u.activo
+                      ? <span className="badge bg-success">Activo</span>
+                      : <span className="badge bg-secondary">Inactivo</span>}
+                  </td>
+                  <td className="text-end">
+                    {u.activo && u.id !== usuarioActual?.id && (
+                      <button className="btn btn-sm btn-outline-danger" onClick={() => desactivar(u)}>Desactivar</button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }

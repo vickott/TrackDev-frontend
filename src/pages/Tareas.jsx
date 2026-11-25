@@ -7,6 +7,12 @@ import EstimacionTarea from '../components/EstimacionTarea'
 const formVacio = { nombre: '', descripcion: '', estado: 'PENDIENTE' }
 const ESTADOS = ['PENDIENTE', 'EN_CURSO', 'FINALIZADA']
 
+const COLOR_ESTADO = {
+  PENDIENTE: 'bg-secondary',
+  EN_CURSO: 'bg-primary',
+  FINALIZADA: 'bg-success',
+}
+
 function Tareas() {
   const [proyectos, setProyectos] = useState([])
   const [proyectoId, setProyectoId] = useState('')
@@ -102,85 +108,101 @@ function Tareas() {
     }
   }
 
-  return (
+   return (
     <div>
-      <h2>Tareas</h2>
+      <h2 className="mb-4">Tareas</h2>
 
-      <div>
-        <label>Proyecto </label>
-        <select value={proyectoId} onChange={(e) => setProyectoId(e.target.value)}>
-          <option value="">-- Elegí un proyecto --</option>
-          {proyectos.map((p) => (
-            <option key={p.id} value={p.id}>{p.nombre} ({p.estado})</option>
-          ))}
-        </select>
-      </div>
-
-      {proyectoId && (
-        <div>
-          <label>Módulo </label>
-          <select value={moduloId} onChange={(e) => setModuloId(e.target.value)}>
-            <option value="">-- Elegí un módulo --</option>
-            {modulos.map((m) => (
-              <option key={m.id} value={m.id}>{m.nombre}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {moduloId && (
-        <>
-          <h3>{editandoId ? 'Editar tarea' : 'Nueva tarea'}</h3>
-          <form onSubmit={manejarSubmit}>
-            <div>
-              <label>Nombre *</label>
-              <input name="nombre" value={form.nombre} onChange={manejarCambio} required />
-            </div>
-            <div>
-              <label>Descripción</label>
-              <input name="descripcion" value={form.descripcion} onChange={manejarCambio} />
-            </div>
-            <div>
-              <label>Estado</label>
-              <select name="estado" value={form.estado} onChange={manejarCambio}>
-                {ESTADOS.map((estado) => (
-                  <option key={estado} value={estado}>{estado}</option>
+      <div className="card shadow-sm mb-4">
+        <div className="card-body">
+          <div className="row g-3">
+            <div className="col-md-6">
+              <label htmlFor="proyectoId" className="form-label">Proyecto</label>
+              <select id="proyectoId" className="form-select" value={proyectoId} onChange={(e) => setProyectoId(e.target.value)}>
+                <option value="">-- Elegí un proyecto --</option>
+                {proyectos.map((p) => (
+                  <option key={p.id} value={p.id}>{p.nombre} ({p.estado})</option>
                 ))}
               </select>
             </div>
-            <button type="submit">{editandoId ? 'Guardar cambios' : 'Crear'}</button>
-            {editandoId && <button type="button" onClick={limpiarFormulario}>Cancelar edición</button>}
-          </form>
+            <div className="col-md-6">
+              <label htmlFor="moduloId" className="form-label">Módulo</label>
+              <select id="moduloId" className="form-select" value={moduloId} onChange={(e) => setModuloId(e.target.value)} disabled={!proyectoId}>
+                <option value="">-- Elegí un módulo --</option>
+                {modulos.map((m) => (
+                  <option key={m.id} value={m.id}>{m.nombre}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          <table border="1">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tareas.length === 0 && (
-                <tr><td colSpan="4">Este módulo no tiene tareas</td></tr>
-              )}
-              {tareas.map((t) => (
-                <tr key={t.id}>
-                  <td>{t.nombre}</td>
-                  <td>{t.descripcion}</td>
-                  <td>{t.estado}</td>
-                  <td>
-                    <button onClick={() => editar(t)}>Editar</button>
-                    <button onClick={() => eliminar(t)}>Eliminar</button>
-                    <button onClick={() => setTareaEstimando(t)}>Detalle</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {error && <div className="alert alert-danger">{error}</div>}
+
+      {moduloId && (
+        <>
+          <div className="card shadow-sm mb-4">
+            <div className="card-body">
+              <h5 className="card-title mb-3">{editandoId ? 'Editar tarea' : 'Nueva tarea'}</h5>
+              <form onSubmit={manejarSubmit}>
+                <div className="row g-3">
+                  <div className="col-md-4">
+                    <label htmlFor="nombre" className="form-label">Nombre *</label>
+                    <input id="nombre" name="nombre" className="form-control" value={form.nombre} onChange={manejarCambio} required />
+                  </div>
+                  <div className="col-md-5">
+                    <label htmlFor="descripcion" className="form-label">Descripción</label>
+                    <input id="descripcion" name="descripcion" className="form-control" value={form.descripcion} onChange={manejarCambio} />
+                  </div>
+                  <div className="col-md-3">
+                    <label htmlFor="estado" className="form-label">Estado</label>
+                    <select id="estado" name="estado" className="form-select" value={form.estado} onChange={manejarCambio}>
+                      {ESTADOS.map((estado) => (
+                        <option key={estado} value={estado}>{estado}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <button type="submit" className="btn btn-primary">{editandoId ? 'Guardar cambios' : 'Crear'}</button>
+                  {editandoId && <button type="button" className="btn btn-secondary ms-2" onClick={limpiarFormulario}>Cancelar edición</button>}
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <table className="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th className="text-end">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tareas.length === 0 && (
+                    <tr><td colSpan="4" className="text-center text-muted">Este módulo no tiene tareas</td></tr>
+                  )}
+                  {tareas.map((t) => (
+                    <tr key={t.id}>
+                      <td>{t.nombre}</td>
+                      <td>{t.descripcion}</td>
+                      <td><span className={`badge ${COLOR_ESTADO[t.estado]}`}>{t.estado}</span></td>
+                      <td className="text-end">
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => editar(t)}>Editar</button>
+                        <button className="btn btn-sm btn-outline-danger ms-2" onClick={() => eliminar(t)}>Eliminar</button>
+                        <button className="btn btn-sm btn-outline-dark ms-2" onClick={() => setTareaEstimando(t)}>Detalle</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           {tareaEstimando && (
             <EstimacionTarea tarea={tareaEstimando} onCerrar={() => setTareaEstimando(null)} />
           )}

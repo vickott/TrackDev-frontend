@@ -30,22 +30,48 @@ function Login() {
     }
   }
 
-  return (
-    <div>
-      <h2>Iniciar sesión</h2>
-      <form onSubmit={manejarSubmit}>
-        <div>
-          <label>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+      return (
+    <div className="container-fluid pantalla-login">
+      <div className="row justify-content-center mt-5">
+        <div className="col-md-5 col-lg-4">
+          <div className="card shadow-sm">
+            <div className="card-body p-4">
+              <h1 className="h3 text-center fw-bold mb-1">
+                <span className="logo-marca">TD</span>TrackDev
+              </h1>
+              <p className="text-center text-muted mb-4">Control de horas y costos</p>
+
+              <form onSubmit={manejarSubmit}>
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label">Email</label>
+                  <input
+                    id="email"
+                    type="email"
+                    className="form-control"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label">Contraseña</label>
+                  <input
+                    id="password"
+                    type="password"
+                    className="form-control"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary w-100">Ingresar</button>
+              </form>
+
+              {error && <div className="alert alert-danger mt-3 mb-0">{error}</div>}
+            </div>
+          </div>
         </div>
-        <div>
-          <label>Contraseña</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
-        <button type="submit">Ingresar</button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {mensaje && <p style={{ color: 'green' }}>{mensaje}</p>}
+      </div>
     </div>
   )
 }

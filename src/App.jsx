@@ -13,7 +13,6 @@ import RutaProtegida from './components/RutaProtegida'
 function App() {
   return (
     <BrowserRouter>
-      <h1>TrackDev</h1>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<RutaProtegida><Inicio /></RutaProtegida>} />

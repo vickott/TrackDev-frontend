@@ -14,6 +14,13 @@ const formVacio = {
 
 const ESTADOS = ['PLANIFICADO', 'EN_CURSO', 'FINALIZADO', 'CANCELADO']
 
+const COLOR_ESTADO = {
+  PLANIFICADO: 'bg-secondary',
+  EN_CURSO: 'bg-primary',
+  FINALIZADO: 'bg-success',
+  CANCELADO: 'bg-danger',
+}
+
 function Proyectos() {
   const [proyectos, setProyectos] = useState([])
   const [clientes, setClientes] = useState([])
@@ -93,89 +100,101 @@ function Proyectos() {
     }
   }
 
-  return (
+    return (
     <div>
-      <h2>Proyectos</h2>
+      <h2 className="mb-4">Proyectos</h2>
 
-      <h3>{editandoId ? 'Editar proyecto' : 'Nuevo proyecto'}</h3>
-      <form onSubmit={manejarSubmit}>
-        <div>
-          <label>Nombre *</label>
-          <input name="nombre" value={form.nombre} onChange={manejarCambio} required />
+      <div className="card shadow-sm mb-4">
+        <div className="card-body">
+          <h5 className="card-title mb-3">{editandoId ? 'Editar proyecto' : 'Nuevo proyecto'}</h5>
+          <form onSubmit={manejarSubmit}>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label htmlFor="nombre" className="form-label">Nombre *</label>
+                <input id="nombre" name="nombre" className="form-control" value={form.nombre} onChange={manejarCambio} required />
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="clienteId" className="form-label">Cliente *</label>
+                <select id="clienteId" name="clienteId" className="form-select" value={form.clienteId} onChange={manejarCambio} required>
+                  <option value="">-- Elegí un cliente --</option>
+                  {clientes.map((c) => (
+                    <option key={c.id} value={c.id}>{c.razonSocial}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-12">
+                <label htmlFor="descripcion" className="form-label">Descripción</label>
+                <input id="descripcion" name="descripcion" className="form-control" value={form.descripcion} onChange={manejarCambio} />
+              </div>
+              <div className="col-md-3">
+                <label htmlFor="fechaInicio" className="form-label">Fecha de inicio *</label>
+                <input id="fechaInicio" type="date" name="fechaInicio" className="form-control" value={form.fechaInicio} onChange={manejarCambio} required />
+              </div>
+              <div className="col-md-3">
+                <label htmlFor="fechaFinEstimada" className="form-label">Fin estimada</label>
+                <input id="fechaFinEstimada" type="date" name="fechaFinEstimada" className="form-control" value={form.fechaFinEstimada} onChange={manejarCambio} />
+              </div>
+              <div className="col-md-3">
+                <label htmlFor="estado" className="form-label">Estado</label>
+                <select id="estado" name="estado" className="form-select" value={form.estado} onChange={manejarCambio}>
+                  {ESTADOS.map((estado) => (
+                    <option key={estado} value={estado}>{estado}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-3">
+                <label htmlFor="presupuestoVenta" className="form-label">Presupuesto de venta</label>
+                <input id="presupuestoVenta" type="number" step="0.01" min="0.01" name="presupuestoVenta" className="form-control" value={form.presupuestoVenta} onChange={manejarCambio} />
+              </div>
+            </div>
+            <div className="mt-3">
+              <button type="submit" className="btn btn-primary">{editandoId ? 'Guardar cambios' : 'Crear'}</button>
+              {editandoId && <button type="button" className="btn btn-secondary ms-2" onClick={limpiarFormulario}>Cancelar edición</button>}
+            </div>
+          </form>
         </div>
-        <div>
-          <label>Descripción</label>
-          <input name="descripcion" value={form.descripcion} onChange={manejarCambio} />
-        </div>
-        <div>
-          <label>Cliente *</label>
-          <select name="clienteId" value={form.clienteId} onChange={manejarCambio} required>
-            <option value="">-- Elegí un cliente --</option>
-            {clientes.map((c) => (
-              <option key={c.id} value={c.id}>{c.razonSocial}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Fecha de inicio *</label>
-          <input type="date" name="fechaInicio" value={form.fechaInicio} onChange={manejarCambio} required />
-        </div>
-        <div>
-          <label>Fecha de fin estimada</label>
-          <input type="date" name="fechaFinEstimada" value={form.fechaFinEstimada} onChange={manejarCambio} />
-        </div>
-        <div>
-          <label>Estado</label>
-          <select name="estado" value={form.estado} onChange={manejarCambio}>
-            {ESTADOS.map((estado) => (
-              <option key={estado} value={estado}>{estado}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Presupuesto de venta</label>
-          <input type="number" step="0.01" min="0.01" name="presupuestoVenta" value={form.presupuestoVenta} onChange={manejarCambio} />
-        </div>
-        <button type="submit">{editandoId ? 'Guardar cambios' : 'Crear'}</button>
-        {editandoId && <button type="button" onClick={limpiarFormulario}>Cancelar edición</button>}
-      </form>
+      </div>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <div className="alert alert-danger">{error}</div>}
 
-      <table border="1">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Cliente</th>
-            <th>Inicio</th>
-            <th>Fin estimada</th>
-            <th>Estado</th>
-            <th>Presupuesto</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {proyectos.length === 0 && (
-            <tr><td colSpan="7">No hay proyectos cargados</td></tr>
-          )}
-          {proyectos.map((p) => (
-            <tr key={p.id}>
-              <td>{p.nombre}</td>
-              <td>{p.cliente?.razonSocial}</td>
-              <td>{p.fechaInicio}</td>
-              <td>{p.fechaFinEstimada}</td>
-              <td>{p.estado}</td>
-              <td>{p.presupuestoVenta}</td>
-              <td>
-                <button onClick={() => editar(p)}>Editar</button>
-                {p.estado !== 'CANCELADO' && p.estado !== 'FINALIZADO' && (
-                  <button onClick={() => cancelar(p)}>Cancelar proyecto</button>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="card shadow-sm">
+        <div className="card-body">
+          <table className="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Cliente</th>
+                <th>Inicio</th>
+                <th>Fin estimada</th>
+                <th>Estado</th>
+                <th>Presupuesto</th>
+                <th className="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {proyectos.length === 0 && (
+                <tr><td colSpan="7" className="text-center text-muted">No hay proyectos cargados</td></tr>
+              )}
+              {proyectos.map((p) => (
+                <tr key={p.id}>
+                  <td>{p.nombre}</td>
+                  <td>{p.cliente?.razonSocial}</td>
+                  <td>{p.fechaInicio}</td>
+                  <td>{p.fechaFinEstimada}</td>
+                  <td><span className={`badge ${COLOR_ESTADO[p.estado]}`}>{p.estado}</span></td>
+                  <td>{p.presupuestoVenta != null && `$${p.presupuestoVenta}`}</td>
+                  <td className="text-end">
+                    <button className="btn btn-sm btn-outline-primary" onClick={() => editar(p)}>Editar</button>
+                    {p.estado !== 'CANCELADO' && p.estado !== 'FINALIZADO' && (
+                      <button className="btn btn-sm btn-outline-danger ms-2" onClick={() => cancelar(p)}>Cancelar proyecto</button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   )
 }

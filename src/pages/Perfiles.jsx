@@ -63,50 +63,69 @@ function Perfiles() {
 
   return (
     <div>
-      <h2>Perfiles de desarrollador</h2>
+      <h2 className="mb-4">Perfiles de desarrollador</h2>
 
-      <h3>{editandoId ? 'Editar perfil' : 'Nuevo perfil'}</h3>
-      <form onSubmit={manejarSubmit}>
-        <div>
-          <label>Nombre *</label>
-          <input name="nombre" value={form.nombre} onChange={manejarCambio} required />
+      <div className="card shadow-sm mb-4">
+        <div className="card-body">
+          <h5 className="card-title mb-3">{editandoId ? 'Editar perfil' : 'Nuevo perfil'}</h5>
+          <form onSubmit={manejarSubmit}>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label htmlFor="nombre" className="form-label">Nombre *</label>
+                <input id="nombre" name="nombre" className="form-control" value={form.nombre} onChange={manejarCambio} required />
+              </div>
+              <div className="col-md-6">
+                <label htmlFor="costoHora" className="form-label">Costo por hora *</label>
+                <div className="input-group">
+                  <span className="input-group-text">$</span>
+                  <input id="costoHora" type="number" step="0.01" min="0.01" name="costoHora" className="form-control" value={form.costoHora} onChange={manejarCambio} required />
+                </div>
+              </div>
+            </div>
+            <div className="mt-3">
+              <button type="submit" className="btn btn-primary">{editandoId ? 'Guardar cambios' : 'Crear'}</button>
+              {editandoId && <button type="button" className="btn btn-secondary ms-2" onClick={limpiarFormulario}>Cancelar edición</button>}
+            </div>
+          </form>
         </div>
-        <div>
-          <label>Costo por hora *</label>
-          <input type="number" step="0.01" min="0.01" name="costoHora" value={form.costoHora} onChange={manejarCambio} required />
+      </div>
+
+      {error && <div className="alert alert-danger">{error}</div>}
+
+      <div className="card shadow-sm">
+        <div className="card-body">
+          <table className="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Costo/hora</th>
+                <th>Estado</th>
+                <th className="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {perfiles.length === 0 && (
+                <tr><td colSpan="4" className="text-center text-muted">No hay perfiles cargados</td></tr>
+              )}
+              {perfiles.map((p) => (
+                <tr key={p.id}>
+                  <td>{p.nombre}</td>
+                  <td>${p.costoHora}</td>
+                  <td>
+                    {p.activo
+                      ? <span className="badge bg-success">Activo</span>
+                      : <span className="badge bg-secondary">Inactivo</span>}
+                  </td>
+                  <td className="text-end">
+                    <button className="btn btn-sm btn-outline-primary" onClick={() => editar(p)}>Editar</button>
+                    {p.activo && <button className="btn btn-sm btn-outline-danger ms-2" onClick={() => desactivar(p)}>Desactivar</button>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <button type="submit">{editandoId ? 'Guardar cambios' : 'Crear'}</button>
-        {editandoId && <button type="button" onClick={limpiarFormulario}>Cancelar edición</button>}
-      </form>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      <table border="1">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Costo/hora</th>
-            <th>Activo</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {perfiles.length === 0 && (
-            <tr><td colSpan="4">No hay perfiles cargados</td></tr>
-          )}
-          {perfiles.map((p) => (
-            <tr key={p.id}>
-              <td>{p.nombre}</td>
-              <td>{p.costoHora}</td>
-              <td>{p.activo ? 'Sí' : 'No'}</td>
-              <td>
-                <button onClick={() => editar(p)}>Editar</button>
-                {p.activo && <button onClick={() => desactivar(p)}>Desactivar</button>}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      </div>
     </div>
   )
 }

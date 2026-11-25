@@ -83,60 +83,74 @@ function Modulos() {
 
   return (
     <div>
-      <h2>Módulos</h2>
+      <h2 className="mb-4">Módulos</h2>
 
-      <div>
-        <label>Proyecto </label>
-        <select value={proyectoId} onChange={(e) => setProyectoId(e.target.value)}>
-          <option value="">-- Elegí un proyecto --</option>
-          {proyectos.map((p) => (
-            <option key={p.id} value={p.id}>{p.nombre} ({p.estado})</option>
-          ))}
-        </select>
+      <div className="card shadow-sm mb-4">
+        <div className="card-body">
+          <label htmlFor="proyectoId" className="form-label">Proyecto</label>
+          <select id="proyectoId" className="form-select" value={proyectoId} onChange={(e) => setProyectoId(e.target.value)}>
+            <option value="">-- Elegí un proyecto --</option>
+            {proyectos.map((p) => (
+              <option key={p.id} value={p.id}>{p.nombre} ({p.estado})</option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <div className="alert alert-danger">{error}</div>}
 
       {proyectoId && (
         <>
-          <h3>{editandoId ? 'Editar módulo' : 'Nuevo módulo'}</h3>
-          <form onSubmit={manejarSubmit}>
-            <div>
-              <label>Nombre *</label>
-              <input name="nombre" value={form.nombre} onChange={manejarCambio} required />
+          <div className="card shadow-sm mb-4">
+            <div className="card-body">
+              <h5 className="card-title mb-3">{editandoId ? 'Editar módulo' : 'Nuevo módulo'}</h5>
+              <form onSubmit={manejarSubmit}>
+                <div className="row g-3">
+                  <div className="col-md-4">
+                    <label htmlFor="nombre" className="form-label">Nombre *</label>
+                    <input id="nombre" name="nombre" className="form-control" value={form.nombre} onChange={manejarCambio} required />
+                  </div>
+                  <div className="col-md-8">
+                    <label htmlFor="descripcion" className="form-label">Descripción</label>
+                    <input id="descripcion" name="descripcion" className="form-control" value={form.descripcion} onChange={manejarCambio} />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <button type="submit" className="btn btn-primary">{editandoId ? 'Guardar cambios' : 'Crear'}</button>
+                  {editandoId && <button type="button" className="btn btn-secondary ms-2" onClick={limpiarFormulario}>Cancelar edición</button>}
+                </div>
+              </form>
             </div>
-            <div>
-              <label>Descripción</label>
-              <input name="descripcion" value={form.descripcion} onChange={manejarCambio} />
-            </div>
-            <button type="submit">{editandoId ? 'Guardar cambios' : 'Crear'}</button>
-            {editandoId && <button type="button" onClick={limpiarFormulario}>Cancelar edición</button>}
-          </form>
+          </div>
 
-          <table border="1">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {modulos.length === 0 && (
-                <tr><td colSpan="3">Este proyecto no tiene módulos</td></tr>
-              )}
-              {modulos.map((m) => (
-                <tr key={m.id}>
-                  <td>{m.nombre}</td>
-                  <td>{m.descripcion}</td>
-                  <td>
-                    <button onClick={() => editar(m)}>Editar</button>
-                    <button onClick={() => eliminar(m)}>Eliminar</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <table className="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th className="text-end">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {modulos.length === 0 && (
+                    <tr><td colSpan="3" className="text-center text-muted">Este proyecto no tiene módulos</td></tr>
+                  )}
+                  {modulos.map((m) => (
+                    <tr key={m.id}>
+                      <td>{m.nombre}</td>
+                      <td>{m.descripcion}</td>
+                      <td className="text-end">
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => editar(m)}>Editar</button>
+                        <button className="btn btn-sm btn-outline-danger ms-2" onClick={() => eliminar(m)}>Eliminar</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </>
       )}
     </div>

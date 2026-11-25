@@ -1,4 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { limpiarSesion } from '../api/sesion'
 
 function Menu() {
   const navigate = useNavigate()
@@ -6,32 +7,37 @@ function Menu() {
   const esAdmin = usuario?.rol === 'ADMIN'
 
   function cerrarSesion() {
-    localStorage.removeItem('token')
-    localStorage.removeItem('usuario')
+    limpiarSesion()
     navigate('/login')
   }
 
   return (
-    <nav style={{ borderBottom: '1px solid gray', paddingBottom: '8px', marginBottom: '15px' }}>
-      <Link to="/">Inicio</Link>
-      {esAdmin ? (
-        <>
-          {' | '}<Link to="/clientes">Clientes</Link>
-          {' | '}<Link to="/proyectos">Proyectos</Link>
-          {' | '}<Link to="/modulos">Módulos</Link>
-          {' | '}<Link to="/tareas">Tareas</Link>
-          {' | '}<Link to="/perfiles">Perfiles</Link>
-          {' | '}<Link to="/usuarios">Usuarios</Link>
-        </>
-      ) : (
-        <>
-          {' | '}<Link to="/mis-horas">Mis horas</Link>
-        </>
-      )}
-      <span style={{ marginLeft: '20px' }}>
-        {usuario?.nombre} {usuario?.apellido} ({usuario?.rol})
-      </span>{' '}
-      <button onClick={cerrarSesion}>Cerrar sesión</button>
+    <nav className="navbar navbar-expand navbar-dark bg-dark mb-4">
+      <div className="container">
+                <Link className="navbar-brand fw-bold d-flex align-items-center" to="/">
+          <span className="logo-marca">TD</span>TrackDev
+        </Link>
+        <div className="navbar-nav me-auto">
+          {esAdmin ? (
+            <>
+              <NavLink className="nav-link" to="/clientes">Clientes</NavLink>
+              <NavLink className="nav-link" to="/proyectos">Proyectos</NavLink>
+              <NavLink className="nav-link" to="/modulos">Módulos</NavLink>
+              <NavLink className="nav-link" to="/tareas">Tareas</NavLink>
+              <NavLink className="nav-link" to="/perfiles">Perfiles</NavLink>
+              <NavLink className="nav-link" to="/usuarios">Usuarios</NavLink>
+            </>
+          ) : (
+            <NavLink className="nav-link" to="/mis-horas">Mis horas</NavLink>
+          )}
+        </div>
+        <span className="navbar-text me-3">
+          {usuario?.nombre} {usuario?.apellido} · {usuario?.rol}
+        </span>
+        <button className="btn btn-outline-light btn-sm" onClick={cerrarSesion}>
+          Cerrar sesión
+        </button>
+      </div>
     </nav>
   )
 }

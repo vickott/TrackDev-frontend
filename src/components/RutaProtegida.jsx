@@ -15,10 +15,12 @@ function RutaProtegida({ children, soloAdmin = false }) {
     return <Navigate to="/" replace />
   }
 
-  return (
+   return (
     <>
       <Menu />
-      {children}
+      <div className="container pb-5">
+        {children}
+      </div>
     </>
   )
 }
