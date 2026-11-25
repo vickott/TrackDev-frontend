@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { listarProyectos, crearProyecto, actualizarProyecto, cancelarProyecto } from '../api/proyectos'
 import { listarClientes } from '../api/clientes'
+import { useNavigate } from 'react-router-dom'
 
 const formVacio = {
   nombre: '',
@@ -21,12 +22,30 @@ const COLOR_ESTADO = {
   CANCELADO: 'bg-danger',
 }
 
+const FILTROS = [
+  { valor: 'ACTIVOS', texto: 'Activos' },
+  { valor: 'PLANIFICADO', texto: 'Planificados' },
+  { valor: 'EN_CURSO', texto: 'En curso' },
+  { valor: 'FINALIZADO', texto: 'Finalizados' },
+  { valor: 'CANCELADO', texto: 'Cancelados' },
+  { valor: 'TODOS', texto: 'Todos' },
+]
+
+// ¿El proyecto entra en el filtro elegido?
+function cumpleFiltro(proyecto, filtro) {
+  if (filtro === 'TODOS') return true
+  if (filtro === 'ACTIVOS') return proyecto.estado === 'PLANIFICADO' || proyecto.estado === 'EN_CURSO'
+  return proyecto.estado === filtro
+}
+
 function Proyectos() {
   const [proyectos, setProyectos] = useState([])
   const [clientes, setClientes] = useState([])
   const [form, setForm] = useState(formVacio)
   const [editandoId, setEditandoId] = useState(null)
   const [error, setError] = useState('')
+  const [filtro, setFiltro] = useState('ACTIVOS')
+  const navigate = useNavigate()
 
   function cargarProyectos() {
     listarProyectos()
@@ -99,8 +118,9 @@ function Proyectos() {
       setError(err.response?.data?.message || 'No se pudo cancelar el proyecto')
     }
   }
+  const proyectosFiltrados = proyectos.filter((p) => cumpleFiltro(p, filtro))
 
-    return (
+      return (
     <div>
       <h2 className="mb-4">Proyectos</h2>
 
@@ -159,6 +179,19 @@ function Proyectos() {
 
       <div className="card shadow-sm">
         <div className="card-body">
+          <div className="d-flex flex-wrap gap-2 mb-3">
+            {FILTROS.map((f) => (
+              <button
+                key={f.valor}
+                type="button"
+                className={`btn btn-sm ${filtro === f.valor ? 'btn-primary' : 'btn-outline-secondary'}`}
+                onClick={() => setFiltro(f.valor)}
+              >
+                {f.texto} <span className="badge bg-light text-dark ms-1">{proyectos.filter((p) => cumpleFiltro(p, f.valor)).length}</span>
+              </button>
+            ))}
+          </div>
+
           <table className="table table-hover align-middle mb-0">
             <thead>
               <tr>
@@ -172,10 +205,10 @@ function Proyectos() {
               </tr>
             </thead>
             <tbody>
-              {proyectos.length === 0 && (
-                <tr><td colSpan="7" className="text-center text-muted">No hay proyectos cargados</td></tr>
+              {proyectosFiltrados.length === 0 && (
+                <tr><td colSpan="7" className="text-center text-muted">No hay proyectos en este filtro</td></tr>
               )}
-              {proyectos.map((p) => (
+              {proyectosFiltrados.map((p) => (
                 <tr key={p.id}>
                   <td>{p.nombre}</td>
                   <td>{p.cliente?.razonSocial}</td>
@@ -183,8 +216,11 @@ function Proyectos() {
                   <td>{p.fechaFinEstimada}</td>
                   <td><span className={`badge ${COLOR_ESTADO[p.estado]}`}>{p.estado}</span></td>
                   <td>{p.presupuestoVenta != null && `$${p.presupuestoVenta}`}</td>
-                  <td className="text-end">
-                    <button className="btn btn-sm btn-outline-primary" onClick={() => editar(p)}>Editar</button>
+                                    <td className="text-end">
+                    <button className="btn btn-sm btn-primary" onClick={() => navigate(`/proyectos/${p.id}`)}>
+                      <i className="bi bi-eye me-1"></i>Ver
+                    </button>
+                    <button className="btn btn-sm btn-outline-primary ms-2" onClick={() => editar(p)}>Editar</button>
                     {p.estado !== 'CANCELADO' && p.estado !== 'FINALIZADO' && (
                       <button className="btn btn-sm btn-outline-danger ms-2" onClick={() => cancelar(p)}>Cancelar proyecto</button>
                     )}

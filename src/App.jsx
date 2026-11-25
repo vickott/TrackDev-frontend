@@ -9,6 +9,9 @@ import Perfiles from './pages/Perfiles'
 import Usuarios from './pages/Usuarios'
 import MisHoras from './pages/MisHoras'
 import RutaProtegida from './components/RutaProtegida'
+import ProyectoDetalle from './pages/ProyectoDetalle'
+
+
 
 function App() {
   return (
@@ -19,6 +22,7 @@ function App() {
         <Route path="/mis-horas" element={<RutaProtegida><MisHoras /></RutaProtegida>} />
         <Route path="/clientes" element={<RutaProtegida soloAdmin><Clientes /></RutaProtegida>} />
         <Route path="/proyectos" element={<RutaProtegida soloAdmin><Proyectos /></RutaProtegida>} />
+        <Route path="/proyectos/:id" element={<RutaProtegida soloAdmin><ProyectoDetalle /></RutaProtegida>} />
         <Route path="/modulos" element={<RutaProtegida soloAdmin><Modulos /></RutaProtegida>} />
         <Route path="/tareas" element={<RutaProtegida soloAdmin><Tareas /></RutaProtegida>} />
         <Route path="/perfiles" element={<RutaProtegida soloAdmin><Perfiles /></RutaProtegida>} />

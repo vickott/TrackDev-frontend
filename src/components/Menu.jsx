@@ -11,34 +11,56 @@ function Menu() {
     navigate('/login')
   }
 
+  // Accesos según el rol (por ahora siguen Módulos y Tareas; se van cuando armemos la página del proyecto)
+  const accesos = esAdmin
+    ? [
+        { to: '/', icono: 'bi-house', texto: 'Inicio' },
+        { to: '/proyectos', icono: 'bi-folder2-open', texto: 'Proyectos' },
+        { to: '/modulos', icono: 'bi-diagram-3', texto: 'Módulos' },
+        { to: '/tareas', icono: 'bi-list-check', texto: 'Tareas' },
+        { to: '/clientes', icono: 'bi-building', texto: 'Clientes' },
+        { to: '/usuarios', icono: 'bi-people', texto: 'Usuarios' },
+        { to: '/perfiles', icono: 'bi-person-badge', texto: 'Perfiles' },
+      ]
+    : [
+        { to: '/', icono: 'bi-house', texto: 'Inicio' },
+        { to: '/mis-horas', icono: 'bi-clock-history', texto: 'Mis horas' },
+      ]
+
   return (
-    <nav className="navbar navbar-expand navbar-dark bg-dark mb-4">
-      <div className="container">
-                <Link className="navbar-brand fw-bold d-flex align-items-center" to="/">
-          <span className="logo-marca">TD</span>TrackDev
-        </Link>
-        <div className="navbar-nav me-auto">
-          {esAdmin ? (
-            <>
-              <NavLink className="nav-link" to="/clientes">Clientes</NavLink>
-              <NavLink className="nav-link" to="/proyectos">Proyectos</NavLink>
-              <NavLink className="nav-link" to="/modulos">Módulos</NavLink>
-              <NavLink className="nav-link" to="/tareas">Tareas</NavLink>
-              <NavLink className="nav-link" to="/perfiles">Perfiles</NavLink>
-              <NavLink className="nav-link" to="/usuarios">Usuarios</NavLink>
-            </>
-          ) : (
-            <NavLink className="nav-link" to="/mis-horas">Mis horas</NavLink>
-          )}
+    <>
+      {/* Franja de arriba: solo logo, usuario y cerrar sesión */}
+      <nav className="navbar navbar-dark bg-dark">
+        <div className="container">
+          <Link className="navbar-brand fw-bold d-flex align-items-center" to="/">
+            <span className="logo-marca">TD</span>TrackDev
+          </Link>
+          <div className="d-flex align-items-center">
+            <span className="navbar-text me-3">
+              <i className="bi bi-person-circle me-1"></i>
+              {usuario?.nombre} {usuario?.apellido} · {usuario?.rol}
+            </span>
+            <button className="btn btn-outline-light btn-sm" onClick={cerrarSesion}>
+              <i className="bi bi-box-arrow-right me-1"></i>Cerrar sesión
+            </button>
+          </div>
         </div>
-        <span className="navbar-text me-3">
-          {usuario?.nombre} {usuario?.apellido} · {usuario?.rol}
-        </span>
-        <button className="btn btn-outline-light btn-sm" onClick={cerrarSesion}>
-          Cerrar sesión
-        </button>
+      </nav>
+
+      {/* Franja de abajo: accesos centrados con ícono */}
+      <div className="subnav">
+        <div className="container">
+          <nav className="nav justify-content-center">
+            {accesos.map((a) => (
+              <NavLink key={a.to} to={a.to} end={a.to === '/'} className="nav-link">
+                <i className={`bi ${a.icono}`}></i>
+                {a.texto}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
       </div>
-    </nav>
+    </>
   )
 }
 

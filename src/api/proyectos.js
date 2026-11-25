@@ -18,3 +18,8 @@ export async function actualizarProyecto(id, proyecto) {
 export async function cancelarProyecto(id) {
   await api.patch(`/proyectos/${id}/cancelar`)
 }
+
+export async function obtenerProyecto(id) {
+  const respuesta = await api.get(`/proyectos/${id}`)
+  return respuesta.data
+}

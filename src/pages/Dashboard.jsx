@@ -78,7 +78,7 @@ function Dashboard() {
           <div key={i} className={`alert ${a.nivel === 'CRITICO' ? 'alert-danger' : 'alert-warning'} py-2`}>
             <strong>{a.nivel === 'CRITICO' ? 'Crítico' : 'Advertencia'}:</strong>{' '}
             {a.tipo === 'TAREA' ? 'la tarea' : 'el proyecto'} <strong>{a.nombre}</strong> consumió el{' '}
-            git <strong>{a.porcentajeConsumido}%</strong> de {a.metrica === 'HORAS' ? 'las horas estimadas' : 'el costo estimado'}.
+            <strong>{a.porcentajeConsumido}%</strong> de {a.metrica === 'HORAS' ? 'las horas estimadas' : 'el costo estimado'}.
           </div>
         ))
       )}

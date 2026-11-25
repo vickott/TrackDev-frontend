@@ -123,3 +123,40 @@ h2 {
   max-width: 420px;
   margin: 0 auto;
 }
+
+/* ===== Franja de accesos (debajo del menú) ===== */
+.subnav {
+  background-color: #fff;
+  border-bottom: 1px solid #DCE8E8;
+  box-shadow: 0 2px 8px rgba(15, 61, 62, 0.05);
+  margin-bottom: 1.75rem;
+}
+.subnav .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.8rem 1.1rem;
+  color: #4A6567;
+  border-bottom: 3px solid transparent;
+}
+.subnav .nav-link i {
+  font-size: 1.15rem;
+}
+.subnav .nav-link:hover {
+  color: var(--td-principal);
+}
+.subnav .nav-link.active {
+  color: var(--td-oscuro);
+  font-weight: 600;
+  border-bottom-color: var(--td-acento);
+}
+
+/* ===== Solapas dentro del proyecto ===== */
+.nav-tabs .nav-link {
+  color: #4A6567;
+}
+.nav-tabs .nav-link.active {
+  color: var(--td-oscuro);
+  font-weight: 600;
+  border-top: 3px solid var(--td-acento);
+}
