@@ -17,8 +17,7 @@ function Menu() {
         { to: '/', icono: 'bi-house', texto: 'Inicio' },
         { to: '/proyectos', icono: 'bi-folder2-open', texto: 'Proyectos' },
         { to: '/clientes', icono: 'bi-building', texto: 'Clientes' },
-        { to: '/usuarios', icono: 'bi-people', texto: 'Usuarios' },
-        { to: '/perfiles', icono: 'bi-person-badge', texto: 'Perfiles' },
+        { to: '/equipo', icono: 'bi-people', texto: 'Equipo' },
       ]
     : [
         { to: '/', icono: 'bi-house', texto: 'Inicio' },

@@ -89,8 +89,8 @@ function Dashboard() {
       <div className="row g-3 mb-4">
         <Acceso to="/proyectos" icono="bi-folder2-open" titulo="Proyectos" detalle={activos(cantidades.proyectos)} />
         <Acceso to="/clientes" icono="bi-building" titulo="Clientes" detalle={activos(cantidades.clientes)} />
-        <Acceso to="/usuarios" icono="bi-people" titulo="Usuarios" detalle={activos(cantidades.usuarios)} />
-        <Acceso to="/perfiles" icono="bi-person-badge" titulo="Perfiles" detalle={activos(cantidades.perfiles)} />
+        <Acceso to="/equipo" icono="bi-people" titulo="Usuarios" detalle={activos(cantidades.usuarios)} />
+        <Acceso to="/equipo?solapa=perfiles" icono="bi-person-badge" titulo="Perfiles" detalle={activos(cantidades.perfiles)} />
       </div>
 
       {/* Alertas */}

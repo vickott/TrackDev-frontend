@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { listarProyectos, crearProyecto, actualizarProyecto, cancelarProyecto } from '../api/proyectos'
 import { listarClientes } from '../api/clientes'
-import { useNavigate } from 'react-router-dom'
 
 const formVacio = {
   nombre: '',
@@ -46,6 +46,10 @@ function Proyectos() {
   const [error, setError] = useState('')
   const [filtro, setFiltro] = useState('ACTIVOS')
   const navigate = useNavigate()
+
+  // Lee el "?cliente=1" de la dirección (si vinimos desde Clientes)
+  const [parametros, setParametros] = useSearchParams()
+  const clienteFiltro = parametros.get('cliente')
 
   function cargarProyectos() {
     listarProyectos()
@@ -118,9 +122,15 @@ function Proyectos() {
       setError(err.response?.data?.message || 'No se pudo cancelar el proyecto')
     }
   }
-  const proyectosFiltrados = proyectos.filter((p) => cumpleFiltro(p, filtro))
 
-      return (
+  // Primero filtramos por cliente (si vino en la dirección), después por estado
+  const proyectosDelCliente = clienteFiltro
+    ? proyectos.filter((p) => String(p.cliente?.id) === clienteFiltro)
+    : proyectos
+  const proyectosFiltrados = proyectosDelCliente.filter((p) => cumpleFiltro(p, filtro))
+  const nombreCliente = proyectosDelCliente[0]?.cliente?.razonSocial || 'este cliente'
+
+  return (
     <div>
       <h2 className="mb-4">Proyectos</h2>
 
@@ -177,6 +187,15 @@ function Proyectos() {
 
       {error && <div className="alert alert-danger">{error}</div>}
 
+      {clienteFiltro && (
+        <div className="alert alert-info d-flex justify-content-between align-items-center py-2">
+          <span><i className="bi bi-building me-2"></i>Mostrando los proyectos de <strong>{nombreCliente}</strong></span>
+          <button className="btn btn-sm btn-outline-secondary" onClick={() => setParametros({})}>
+            <i className="bi bi-x-lg me-1"></i>Ver todos los clientes
+          </button>
+        </div>
+      )}
+
       <div className="card shadow-sm">
         <div className="card-body">
           <div className="d-flex flex-wrap gap-2 mb-3">
@@ -187,7 +206,7 @@ function Proyectos() {
                 className={`btn btn-sm ${filtro === f.valor ? 'btn-primary' : 'btn-outline-secondary'}`}
                 onClick={() => setFiltro(f.valor)}
               >
-                {f.texto} <span className="badge bg-light text-dark ms-1">{proyectos.filter((p) => cumpleFiltro(p, f.valor)).length}</span>
+                {f.texto} <span className="badge bg-light text-dark ms-1">{proyectosDelCliente.filter((p) => cumpleFiltro(p, f.valor)).length}</span>
               </button>
             ))}
           </div>
@@ -216,7 +235,7 @@ function Proyectos() {
                   <td>{p.fechaFinEstimada}</td>
                   <td><span className={`badge ${COLOR_ESTADO[p.estado]}`}>{p.estado}</span></td>
                   <td>{p.presupuestoVenta != null && `$${p.presupuestoVenta}`}</td>
-                                    <td className="text-end">
+                  <td className="text-end text-nowrap">
                     <button className="btn btn-sm btn-primary" onClick={() => navigate(`/proyectos/${p.id}`)}>
                       <i className="bi bi-eye me-1"></i>Ver
                     </button>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { listarClientes, crearCliente, actualizarCliente, desactivarCliente } from '../api/clientes'
 
 const formVacio = {
@@ -14,6 +15,7 @@ function Clientes() {
   const [form, setForm] = useState(formVacio)
   const [editandoId, setEditandoId] = useState(null)
   const [error, setError] = useState('')
+  const navigate = useNavigate()
 
   function cargarClientes() {
     listarClientes()
@@ -65,7 +67,7 @@ function Clientes() {
     setEditandoId(null)
   }
 
-    async function desactivar(cliente) {
+  async function desactivar(cliente) {
     if (!window.confirm(`¿Desactivar a ${cliente.razonSocial}?`)) return
     setError('')
     try {
@@ -75,7 +77,8 @@ function Clientes() {
       setError(err.response?.data?.message || 'No se pudo desactivar el cliente')
     }
   }
-   return (
+
+  return (
     <div>
       <h2 className="mb-4">Clientes</h2>
 
@@ -145,8 +148,11 @@ function Clientes() {
                       ? <span className="badge bg-success">Activo</span>
                       : <span className="badge bg-secondary">Inactivo</span>}
                   </td>
-                  <td className="text-end">
-                    <button className="btn btn-sm btn-outline-primary" onClick={() => editar(c)}>Editar</button>
+                  <td className="text-end text-nowrap">
+                    <button className="btn btn-sm btn-primary" onClick={() => navigate(`/proyectos?cliente=${c.id}`)}>
+                      <i className="bi bi-folder2-open me-1"></i>Proyectos
+                    </button>
+                    <button className="btn btn-sm btn-outline-primary ms-2" onClick={() => editar(c)}>Editar</button>
                     {c.activo && <button className="btn btn-sm btn-outline-danger ms-2" onClick={() => desactivar(c)}>Desactivar</button>}
                   </td>
                 </tr>
