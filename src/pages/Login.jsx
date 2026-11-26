@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login } from '../api/auth'
+import Logo from '../components/Logo'
 
 //useState guarda el estado de las variables email, password, error y mensaje. 
 // Cuando el usuario ingresa sus credenciales y envía el formulario, 
@@ -36,8 +37,8 @@ function Login() {
         <div className="col-md-5 col-lg-4">
           <div className="card shadow-sm">
             <div className="card-body p-4">
-              <h1 className="h3 text-center fw-bold mb-1">
-                <span className="logo-marca">TD</span>TrackDev
+                           <h1 className="text-center mb-2">
+                <Logo size={44} />
               </h1>
               <p className="text-center text-muted mb-4">Control de horas y costos</p>
 

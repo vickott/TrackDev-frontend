@@ -35,20 +35,6 @@ body {
   border-bottom: 2px solid var(--td-acento);
 }
 
-/* Logo: cuadradito con las iniciales */
-.logo-marca {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  margin-right: 8px;
-  border-radius: 8px;
-  background-color: var(--td-acento);
-  color: var(--td-oscuro);
-  font-size: 0.9rem;
-  font-weight: 700;
-}
 
 /* ===== Títulos de cada pantalla con barrita de color ===== */
 h2 {

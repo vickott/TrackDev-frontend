@@ -1,3 +1,4 @@
+import Logo from './Logo'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { limpiarSesion } from '../api/sesion'
 
@@ -29,8 +30,8 @@ function Menu() {
       {/* Franja de arriba: solo logo, usuario y cerrar sesión */}
       <nav className="navbar navbar-dark bg-dark">
         <div className="container">
-          <Link className="navbar-brand fw-bold d-flex align-items-center" to="/">
-            <span className="logo-marca">TD</span>TrackDev
+                    <Link className="navbar-brand" to="/">
+            <Logo fondo="oscuro" size={30} />
           </Link>
           <div className="d-flex align-items-center">
             <span className="navbar-text me-3">
