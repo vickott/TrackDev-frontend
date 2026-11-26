@@ -7,6 +7,7 @@ function Perfiles() {
   const [perfiles, setPerfiles] = useState([])
   const [form, setForm] = useState(formVacio)
   const [editandoId, setEditandoId] = useState(null)
+  const [mostrarFormulario, setMostrarFormulario] = useState(false)
   const [error, setError] = useState('')
 
   function cargarPerfiles() {
@@ -33,21 +34,30 @@ function Perfiles() {
       } else {
         await crearPerfil(datos)
       }
-      limpiarFormulario()
+      cerrarFormulario()
       cargarPerfiles()
     } catch (err) {
       setError(err.response?.data?.message || 'No se pudo guardar el perfil')
     }
   }
 
+  function nuevoPerfil() {
+    setEditandoId(null)
+    setForm(formVacio)
+    setMostrarFormulario(true)
+  }
+
   function editar(perfil) {
     setEditandoId(perfil.id)
     setForm({ nombre: perfil.nombre, costoHora: perfil.costoHora })
+    setMostrarFormulario(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  function limpiarFormulario() {
+  function cerrarFormulario() {
     setForm(formVacio)
     setEditandoId(null)
+    setMostrarFormulario(false)
   }
 
   async function desactivar(perfil) {
@@ -63,32 +73,43 @@ function Perfiles() {
 
   return (
     <div>
-      <h2 className="mb-4">Perfiles de desarrollador</h2>
+      {!mostrarFormulario && (
+        <div className="d-flex justify-content-end mb-3">
+          <button className="btn btn-primary" onClick={nuevoPerfil}>
+            <i className="bi bi-plus-lg me-1"></i>Nuevo perfil
+          </button>
+        </div>
+      )}
 
-      <div className="card shadow-sm mb-4">
-        <div className="card-body">
-          <h5 className="card-title mb-3">{editandoId ? 'Editar perfil' : 'Nuevo perfil'}</h5>
-          <form onSubmit={manejarSubmit}>
-            <div className="row g-3">
-              <div className="col-md-6">
-                <label htmlFor="nombre" className="form-label">Nombre *</label>
-                <input id="nombre" name="nombre" className="form-control" value={form.nombre} onChange={manejarCambio} required />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="costoHora" className="form-label">Costo por hora *</label>
-                <div className="input-group">
-                  <span className="input-group-text">$</span>
-                  <input id="costoHora" type="number" step="0.01" min="0.01" name="costoHora" className="form-control" value={form.costoHora} onChange={manejarCambio} required />
+      {mostrarFormulario && (
+        <div className="card shadow-sm mb-4">
+          <div className="card-body">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h5 className="card-title mb-0">{editandoId ? 'Editar perfil' : 'Nuevo perfil'}</h5>
+              <button type="button" className="btn-close" aria-label="Cerrar" onClick={cerrarFormulario}></button>
+            </div>
+            <form onSubmit={manejarSubmit}>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label htmlFor="nombre" className="form-label">Nombre *</label>
+                  <input id="nombre" name="nombre" className="form-control" value={form.nombre} onChange={manejarCambio} required />
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="costoHora" className="form-label">Costo por hora *</label>
+                  <div className="input-group">
+                    <span className="input-group-text">$</span>
+                    <input id="costoHora" type="number" step="0.01" min="0.01" name="costoHora" className="form-control" value={form.costoHora} onChange={manejarCambio} required />
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="mt-3">
-              <button type="submit" className="btn btn-primary">{editandoId ? 'Guardar cambios' : 'Crear'}</button>
-              {editandoId && <button type="button" className="btn btn-secondary ms-2" onClick={limpiarFormulario}>Cancelar edición</button>}
-            </div>
-          </form>
+              <div className="mt-3">
+                <button type="submit" className="btn btn-primary">{editandoId ? 'Guardar cambios' : 'Crear perfil'}</button>
+                <button type="button" className="btn btn-secondary ms-2" onClick={cerrarFormulario}>Cancelar</button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
 
       {error && <div className="alert alert-danger">{error}</div>}
 
@@ -109,7 +130,7 @@ function Perfiles() {
               )}
               {perfiles.map((p) => (
                 <tr key={p.id}>
-                  <td>{p.nombre}</td>
+                  <td className="fw-semibold">{p.nombre}</td>
                   <td>${p.costoHora}</td>
                   <td>
                     {p.activo

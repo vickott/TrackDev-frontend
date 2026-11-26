@@ -15,6 +15,7 @@ function Usuarios() {
   const [usuarios, setUsuarios] = useState([])
   const [perfiles, setPerfiles] = useState([])
   const [form, setForm] = useState(formVacio)
+  const [mostrarFormulario, setMostrarFormulario] = useState(false)
   const [error, setError] = useState('')
 
   // El usuario logueado, para no dejar que se desactive a sí mismo
@@ -50,11 +51,21 @@ function Usuarios() {
     }
     try {
       await crearUsuario(datos)
-      setForm(formVacio)
+      cerrarFormulario()
       cargarUsuarios()
     } catch (err) {
       setError(err.response?.data?.message || 'No se pudo crear el usuario')
     }
+  }
+
+  function nuevoUsuario() {
+    setForm(formVacio)
+    setMostrarFormulario(true)
+  }
+
+  function cerrarFormulario() {
+    setForm(formVacio)
+    setMostrarFormulario(false)
   }
 
   async function desactivar(usuario) {
@@ -70,53 +81,65 @@ function Usuarios() {
 
   return (
     <div>
-      <h2 className="mb-4">Usuarios</h2>
-
-      <div className="card shadow-sm mb-4">
-        <div className="card-body">
-          <h5 className="card-title mb-3">Nuevo usuario</h5>
-          <form onSubmit={manejarSubmit}>
-            <div className="row g-3">
-              <div className="col-md-4">
-                <label htmlFor="nombre" className="form-label">Nombre *</label>
-                <input id="nombre" name="nombre" className="form-control" value={form.nombre} onChange={manejarCambio} required />
-              </div>
-              <div className="col-md-4">
-                <label htmlFor="apellido" className="form-label">Apellido *</label>
-                <input id="apellido" name="apellido" className="form-control" value={form.apellido} onChange={manejarCambio} required />
-              </div>
-              <div className="col-md-4">
-                <label htmlFor="email" className="form-label">Email *</label>
-                <input id="email" type="email" name="email" className="form-control" value={form.email} onChange={manejarCambio} required />
-              </div>
-              <div className="col-md-4">
-                <label htmlFor="password" className="form-label">Contraseña *</label>
-                <input id="password" type="password" name="password" className="form-control" value={form.password} onChange={manejarCambio} minLength={8} required />
-                <div className="form-text">Mínimo 8 caracteres.</div>
-              </div>
-              <div className="col-md-4">
-                <label htmlFor="rol" className="form-label">Rol *</label>
-                <select id="rol" name="rol" className="form-select" value={form.rol} onChange={manejarCambio}>
-                  <option value="OPERADOR">OPERADOR</option>
-                  <option value="ADMIN">ADMIN</option>
-                </select>
-              </div>
-              <div className="col-md-4">
-                <label htmlFor="perfilId" className="form-label">Perfil {form.rol === 'OPERADOR' && '*'}</label>
-                <select id="perfilId" name="perfilId" className="form-select" value={form.perfilId} onChange={manejarCambio} required={form.rol === 'OPERADOR'}>
-                  <option value="">-- Sin perfil --</option>
-                  {perfiles.map((p) => (
-                    <option key={p.id} value={p.id}>{p.nombre} (${p.costoHora}/h)</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="mt-3">
-              <button type="submit" className="btn btn-primary">Crear</button>
-            </div>
-          </form>
+      {!mostrarFormulario && (
+        <div className="d-flex justify-content-end mb-3">
+          <button className="btn btn-primary" onClick={nuevoUsuario}>
+            <i className="bi bi-plus-lg me-1"></i>Nuevo usuario
+          </button>
         </div>
-      </div>
+      )}
+
+      {mostrarFormulario && (
+        <div className="card shadow-sm mb-4">
+          <div className="card-body">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h5 className="card-title mb-0">Nuevo usuario</h5>
+              <button type="button" className="btn-close" aria-label="Cerrar" onClick={cerrarFormulario}></button>
+            </div>
+            <form onSubmit={manejarSubmit}>
+              <div className="row g-3">
+                <div className="col-md-4">
+                  <label htmlFor="nombre" className="form-label">Nombre *</label>
+                  <input id="nombre" name="nombre" className="form-control" value={form.nombre} onChange={manejarCambio} required />
+                </div>
+                <div className="col-md-4">
+                  <label htmlFor="apellido" className="form-label">Apellido *</label>
+                  <input id="apellido" name="apellido" className="form-control" value={form.apellido} onChange={manejarCambio} required />
+                </div>
+                <div className="col-md-4">
+                  <label htmlFor="email" className="form-label">Email *</label>
+                  <input id="email" type="email" name="email" className="form-control" value={form.email} onChange={manejarCambio} required />
+                </div>
+                <div className="col-md-4">
+                  <label htmlFor="password" className="form-label">Contraseña *</label>
+                  <input id="password" type="password" name="password" className="form-control" value={form.password} onChange={manejarCambio} minLength={8} required />
+                  <div className="form-text">Mínimo 8 caracteres.</div>
+                </div>
+                <div className="col-md-4">
+                  <label htmlFor="rol" className="form-label">Rol *</label>
+                  <select id="rol" name="rol" className="form-select" value={form.rol} onChange={manejarCambio}>
+                    <option value="OPERADOR">OPERADOR</option>
+                    <option value="ADMIN">ADMIN</option>
+                  </select>
+                </div>
+                <div className="col-md-4">
+                  <label htmlFor="perfilId" className="form-label">Perfil {form.rol === 'OPERADOR' && '*'}</label>
+                  <select id="perfilId" name="perfilId" className="form-select" value={form.perfilId} onChange={manejarCambio} required={form.rol === 'OPERADOR'}>
+                    <option value="">-- Sin perfil --</option>
+                    {perfiles.map((p) => (
+                      <option key={p.id} value={p.id}>{p.nombre} (${p.costoHora}/h)</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="mt-3">
+                <button type="submit" className="btn btn-primary">Crear usuario</button>
+                <button type="button" className="btn btn-secondary ms-2" onClick={cerrarFormulario}>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {error && <div className="alert alert-danger">{error}</div>}
 
@@ -136,7 +159,7 @@ function Usuarios() {
             <tbody>
               {usuarios.map((u) => (
                 <tr key={u.id}>
-                  <td>{u.nombre} {u.apellido}</td>
+                  <td className="fw-semibold">{u.nombre} {u.apellido}</td>
                   <td>{u.email}</td>
                   <td>
                     <span className={`badge ${u.rol === 'ADMIN' ? 'bg-dark' : 'bg-info text-dark'}`}>{u.rol}</span>

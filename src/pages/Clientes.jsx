@@ -14,6 +14,7 @@ function Clientes() {
   const [clientes, setClientes] = useState([])
   const [form, setForm] = useState(formVacio)
   const [editandoId, setEditandoId] = useState(null)
+  const [mostrarFormulario, setMostrarFormulario] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
@@ -44,11 +45,17 @@ function Clientes() {
       } else {
         await crearCliente(datos)
       }
-      cancelar()
+      cerrarFormulario()
       cargarClientes()
     } catch (err) {
       setError(err.response?.data?.message || 'No se pudo guardar el cliente')
     }
+  }
+
+  function nuevoCliente() {
+    setEditandoId(null)
+    setForm(formVacio)
+    setMostrarFormulario(true)
   }
 
   function editar(cliente) {
@@ -60,11 +67,14 @@ function Clientes() {
       contactoEmail: cliente.contactoEmail || '',
       contactoTelefono: cliente.contactoTelefono || '',
     })
+    setMostrarFormulario(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  function cancelar() {
+  function cerrarFormulario() {
     setForm(formVacio)
     setEditandoId(null)
+    setMostrarFormulario(false)
   }
 
   async function desactivar(cliente) {
@@ -80,41 +90,53 @@ function Clientes() {
 
   return (
     <div>
-      <h2 className="mb-4">Clientes</h2>
-
-      <div className="card shadow-sm mb-4">
-        <div className="card-body">
-          <h5 className="card-title mb-3">{editandoId ? 'Editar cliente' : 'Nuevo cliente'}</h5>
-          <form onSubmit={manejarSubmit}>
-            <div className="row g-3">
-              <div className="col-md-6">
-                <label htmlFor="razonSocial" className="form-label">Razón social *</label>
-                <input id="razonSocial" name="razonSocial" className="form-control" value={form.razonSocial} onChange={manejarCambio} required />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="cuit" className="form-label">CUIT</label>
-                <input id="cuit" name="cuit" className="form-control" value={form.cuit} onChange={manejarCambio} />
-              </div>
-              <div className="col-md-4">
-                <label htmlFor="contactoNombre" className="form-label">Contacto</label>
-                <input id="contactoNombre" name="contactoNombre" className="form-control" value={form.contactoNombre} onChange={manejarCambio} />
-              </div>
-              <div className="col-md-4">
-                <label htmlFor="contactoEmail" className="form-label">Email</label>
-                <input id="contactoEmail" type="email" name="contactoEmail" className="form-control" value={form.contactoEmail} onChange={manejarCambio} />
-              </div>
-              <div className="col-md-4">
-                <label htmlFor="contactoTelefono" className="form-label">Teléfono</label>
-                <input id="contactoTelefono" name="contactoTelefono" className="form-control" value={form.contactoTelefono} onChange={manejarCambio} />
-              </div>
-            </div>
-            <div className="mt-3">
-              <button type="submit" className="btn btn-primary">{editandoId ? 'Guardar cambios' : 'Crear'}</button>
-              {editandoId && <button type="button" className="btn btn-secondary ms-2" onClick={cancelar}>Cancelar</button>}
-            </div>
-          </form>
-        </div>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-0">Clientes</h2>
+        {!mostrarFormulario && (
+          <button className="btn btn-primary" onClick={nuevoCliente}>
+            <i className="bi bi-plus-lg me-1"></i>Nuevo cliente
+          </button>
+        )}
       </div>
+
+      {mostrarFormulario && (
+        <div className="card shadow-sm mb-4">
+          <div className="card-body">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h5 className="card-title mb-0">{editandoId ? 'Editar cliente' : 'Nuevo cliente'}</h5>
+              <button type="button" className="btn-close" aria-label="Cerrar" onClick={cerrarFormulario}></button>
+            </div>
+            <form onSubmit={manejarSubmit}>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label htmlFor="razonSocial" className="form-label">Razón social *</label>
+                  <input id="razonSocial" name="razonSocial" className="form-control" value={form.razonSocial} onChange={manejarCambio} required />
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="cuit" className="form-label">CUIT</label>
+                  <input id="cuit" name="cuit" className="form-control" value={form.cuit} onChange={manejarCambio} />
+                </div>
+                <div className="col-md-4">
+                  <label htmlFor="contactoNombre" className="form-label">Contacto</label>
+                  <input id="contactoNombre" name="contactoNombre" className="form-control" value={form.contactoNombre} onChange={manejarCambio} />
+                </div>
+                <div className="col-md-4">
+                  <label htmlFor="contactoEmail" className="form-label">Email</label>
+                  <input id="contactoEmail" type="email" name="contactoEmail" className="form-control" value={form.contactoEmail} onChange={manejarCambio} />
+                </div>
+                <div className="col-md-4">
+                  <label htmlFor="contactoTelefono" className="form-label">Teléfono</label>
+                  <input id="contactoTelefono" name="contactoTelefono" className="form-control" value={form.contactoTelefono} onChange={manejarCambio} />
+                </div>
+              </div>
+              <div className="mt-3">
+                <button type="submit" className="btn btn-primary">{editandoId ? 'Guardar cambios' : 'Crear cliente'}</button>
+                <button type="button" className="btn btn-secondary ms-2" onClick={cerrarFormulario}>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {error && <div className="alert alert-danger">{error}</div>}
 
@@ -138,7 +160,7 @@ function Clientes() {
               )}
               {clientes.map((c) => (
                 <tr key={c.id}>
-                  <td>{c.razonSocial}</td>
+                  <td className="fw-semibold">{c.razonSocial}</td>
                   <td>{c.cuit}</td>
                   <td>{c.contactoNombre}</td>
                   <td>{c.contactoEmail}</td>
