@@ -1,111 +1,163 @@
+/* ===== Paleta de TrackDev ===== */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --td-oscuro: #0F3D3E;
+  --td-principal: #14808A;
+  --td-principal-hover: #0F6970;
+  --td-acento: #F2A541;
+  --td-fondo: #F3F6F6;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  /* Le decimos a Bootstrap que use nuestra paleta */
+  --bs-body-font-family: 'Poppins', sans-serif;
+  --bs-body-color: #1F2D2E;
+  --bs-primary-rgb: 20, 128, 138;
+  --bs-link-color-rgb: 20, 128, 138;
+  --bs-link-hover-color-rgb: 15, 105, 112;
+  --bs-border-radius: 0.6rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
+/* ===== Fondo con manchas de color suaves ===== */
 body {
-  margin: 0;
+ background-color: var(--td-fondo);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 100% 0%, rgba(20, 128, 138, 0.10), transparent 40%),
+    radial-gradient(circle at 0% 100%, rgba(242, 165, 65, 0.10), transparent 35%);
+  background-attachment: fixed;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
+/* ===== Menú ===== */
+.navbar.bg-dark {
+  background-color: var(--td-oscuro) !important;
+  border-bottom: 3px solid var(--td-acento);
+}
+.navbar .nav-link.active {
+  color: #fff !important;
+  border-bottom: 2px solid var(--td-acento);
+}
+
+
+/* ===== Títulos de cada pantalla con barrita de color ===== */
+h2 {
+  color: var(--td-oscuro);
+  font-weight: 700;
+  padding-left: 0.75rem;
+  border-left: 5px solid var(--td-acento);
+}
+
+/* ===== Tarjetas: sin borde, más redondeadas, sombra suave ===== */
+.card {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 2px 14px rgba(15, 61, 62, 0.08) !important;
+}
+.card .card-title {
+  color: var(--td-oscuro);
+  font-weight: 600;
+}
+
+/* ===== Tablas ===== */
+.table thead th {
+  color: var(--td-principal);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid #DCE8E8;
+}
+.table > :not(caption) > * > * {
+  background-color: transparent;
+}
+
+/* ===== Botones ===== */
+.btn-primary {
+  --bs-btn-bg: var(--td-principal);
+  --bs-btn-border-color: var(--td-principal);
+  --bs-btn-hover-bg: var(--td-principal-hover);
+  --bs-btn-hover-border-color: var(--td-principal-hover);
+  --bs-btn-active-bg: var(--td-oscuro);
+  --bs-btn-active-border-color: var(--td-oscuro);
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--td-principal);
+  --bs-btn-border-color: var(--td-principal);
+  --bs-btn-hover-bg: var(--td-principal);
+  --bs-btn-hover-border-color: var(--td-principal);
+  --bs-btn-active-bg: var(--td-principal-hover);
+}
+
+/* Etiquetas "EN CURSO" con el color de la app */
+.bg-primary {
+  background-color: var(--td-principal) !important;
+}
+
+/* ===== Campos: borde verde al escribir ===== */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--td-principal);
+  box-shadow: 0 0 0 0.2rem rgba(20, 128, 138, 0.2);
+}
+
+/* ===== Pantalla de login con fondo degradado ===== */
+.pantalla-login {
+  min-height: 100vh;
+  padding-top: 10vh;
+  background: linear-gradient(135deg, var(--td-oscuro), var(--td-principal));
+}
+
+/* La tarjeta del login no se estira de más en pantallas grandes */
+.pantalla-login .card {
+  max-width: 420px;
   margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
+}
+
+/* ===== Franja de accesos (debajo del menú) ===== */
+.subnav {
+  background-color: #fff;
+  border-bottom: 1px solid #DCE8E8;
+  box-shadow: 0 2px 8px rgba(15, 61, 62, 0.05);
+  margin-bottom: 1.75rem;
+}
+.subnav .nav-link {
   display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.8rem 1.1rem;
+  color: #4A6567;
+  border-bottom: 3px solid transparent;
+}
+.subnav .nav-link i {
+  font-size: 1.15rem;
+}
+.subnav .nav-link:hover {
+  color: var(--td-principal);
+}
+.subnav .nav-link.active {
+  color: var(--td-oscuro);
+  font-weight: 600;
+  border-bottom-color: var(--td-acento);
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+/* ===== Solapas dentro del proyecto ===== */
+.nav-tabs .nav-link {
+  color: #4A6567;
+}
+.nav-tabs .nav-link.active {
+  color: var(--td-oscuro);
+  font-weight: 600;
+  border-top: 3px solid var(--td-acento);
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+/* ===== Botones grandes del Inicio ===== */
+.acceso {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+.acceso:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(15, 61, 62, 0.15) !important;
 }
-p {
-  margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.acceso .icono {
+  font-size: 2.2rem;
+  color: var(--td-principal);
 }
