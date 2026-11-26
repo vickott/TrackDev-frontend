@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { listarTareasDisponibles } from '../api/tareas'
 import { listarMisRegistros, crearRegistro, actualizarRegistro, eliminarRegistro } from '../api/registros'
 
@@ -10,7 +11,8 @@ const formVacio = { tareaId: '', fecha: hoy, horasTrabajadas: '', descripcion: '
 function MisHoras() {
   const [tareas, setTareas] = useState([])
   const [registros, setRegistros] = useState([])
-  const [form, setForm] = useState(formVacio)
+  const [parametros] = useSearchParams()
+  const [form, setForm] = useState({ ...formVacio, tareaId: parametros.get('tarea') || '' })
   const [editandoId, setEditandoId] = useState(null)
   const [error, setError] = useState('')
 

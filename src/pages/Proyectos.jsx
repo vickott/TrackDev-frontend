@@ -40,9 +40,10 @@ function cumpleFiltro(proyecto, filtro) {
 
 function Proyectos() {
   const [proyectos, setProyectos] = useState([])
-  const [clientes, setClientes] = useState([])
+  const [todosLosClientes, setTodosLosClientes] = useState([])
   const [form, setForm] = useState(formVacio)
   const [editandoId, setEditandoId] = useState(null)
+  const [mostrarFormulario, setMostrarFormulario] = useState(false)
   const [error, setError] = useState('')
   const [filtro, setFiltro] = useState('ACTIVOS')
   const navigate = useNavigate()
@@ -50,6 +51,9 @@ function Proyectos() {
   // Lee el "?cliente=1" de la dirección (si vinimos desde Clientes)
   const [parametros, setParametros] = useSearchParams()
   const clienteFiltro = parametros.get('cliente')
+
+  // En el formulario solo se ofrecen los clientes activos
+  const clientesActivos = todosLosClientes.filter((c) => c.activo)
 
   function cargarProyectos() {
     listarProyectos()
@@ -60,7 +64,7 @@ function Proyectos() {
   useEffect(() => {
     cargarProyectos()
     listarClientes()
-      .then((lista) => setClientes(lista.filter((c) => c.activo)))
+      .then(setTodosLosClientes)
       .catch(() => setError('No se pudieron cargar los clientes'))
   }, [])
 
@@ -94,6 +98,13 @@ function Proyectos() {
     }
   }
 
+  function nuevoProyecto() {
+    setEditandoId(null)
+    // Si venimos filtrando por un cliente, lo dejamos elegido
+    setForm({ ...formVacio, clienteId: clienteFiltro || '' })
+    setMostrarFormulario(true)
+  }
+
   function editar(proyecto) {
     setEditandoId(proyecto.id)
     setForm({
@@ -105,11 +116,14 @@ function Proyectos() {
       estado: proyecto.estado,
       presupuestoVenta: proyecto.presupuestoVenta ?? '',
     })
+    setMostrarFormulario(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   function limpiarFormulario() {
     setForm(formVacio)
     setEditandoId(null)
+    setMostrarFormulario(false)
   }
 
   async function cancelar(proyecto) {
@@ -128,62 +142,74 @@ function Proyectos() {
     ? proyectos.filter((p) => String(p.cliente?.id) === clienteFiltro)
     : proyectos
   const proyectosFiltrados = proyectosDelCliente.filter((p) => cumpleFiltro(p, filtro))
-  const nombreCliente = proyectosDelCliente[0]?.cliente?.razonSocial || 'este cliente'
+  const nombreCliente = todosLosClientes.find((c) => String(c.id) === clienteFiltro)?.razonSocial || 'este cliente'
 
   return (
     <div>
-      <h2 className="mb-4">Proyectos</h2>
-
-      <div className="card shadow-sm mb-4">
-        <div className="card-body">
-          <h5 className="card-title mb-3">{editandoId ? 'Editar proyecto' : 'Nuevo proyecto'}</h5>
-          <form onSubmit={manejarSubmit}>
-            <div className="row g-3">
-              <div className="col-md-6">
-                <label htmlFor="nombre" className="form-label">Nombre *</label>
-                <input id="nombre" name="nombre" className="form-control" value={form.nombre} onChange={manejarCambio} required />
-              </div>
-              <div className="col-md-6">
-                <label htmlFor="clienteId" className="form-label">Cliente *</label>
-                <select id="clienteId" name="clienteId" className="form-select" value={form.clienteId} onChange={manejarCambio} required>
-                  <option value="">-- Elegí un cliente --</option>
-                  {clientes.map((c) => (
-                    <option key={c.id} value={c.id}>{c.razonSocial}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-12">
-                <label htmlFor="descripcion" className="form-label">Descripción</label>
-                <input id="descripcion" name="descripcion" className="form-control" value={form.descripcion} onChange={manejarCambio} />
-              </div>
-              <div className="col-md-3">
-                <label htmlFor="fechaInicio" className="form-label">Fecha de inicio *</label>
-                <input id="fechaInicio" type="date" name="fechaInicio" className="form-control" value={form.fechaInicio} onChange={manejarCambio} required />
-              </div>
-              <div className="col-md-3">
-                <label htmlFor="fechaFinEstimada" className="form-label">Fin estimada</label>
-                <input id="fechaFinEstimada" type="date" name="fechaFinEstimada" className="form-control" value={form.fechaFinEstimada} onChange={manejarCambio} />
-              </div>
-              <div className="col-md-3">
-                <label htmlFor="estado" className="form-label">Estado</label>
-                <select id="estado" name="estado" className="form-select" value={form.estado} onChange={manejarCambio}>
-                  {ESTADOS.map((estado) => (
-                    <option key={estado} value={estado}>{estado}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-md-3">
-                <label htmlFor="presupuestoVenta" className="form-label">Presupuesto de venta</label>
-                <input id="presupuestoVenta" type="number" step="0.01" min="0.01" name="presupuestoVenta" className="form-control" value={form.presupuestoVenta} onChange={manejarCambio} />
-              </div>
-            </div>
-            <div className="mt-3">
-              <button type="submit" className="btn btn-primary">{editandoId ? 'Guardar cambios' : 'Crear'}</button>
-              {editandoId && <button type="button" className="btn btn-secondary ms-2" onClick={limpiarFormulario}>Cancelar edición</button>}
-            </div>
-          </form>
-        </div>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-0">Proyectos</h2>
+        {!mostrarFormulario && (
+          <button className="btn btn-primary" onClick={nuevoProyecto}>
+            <i className="bi bi-plus-lg me-1"></i>Nuevo proyecto
+          </button>
+        )}
       </div>
+
+      {mostrarFormulario && (
+        <div className="card shadow-sm mb-4">
+          <div className="card-body">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h5 className="card-title mb-0">{editandoId ? 'Editar proyecto' : 'Nuevo proyecto'}</h5>
+              <button type="button" className="btn-close" aria-label="Cerrar" onClick={limpiarFormulario}></button>
+            </div>
+            <form onSubmit={manejarSubmit}>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label htmlFor="nombre" className="form-label">Nombre *</label>
+                  <input id="nombre" name="nombre" className="form-control" value={form.nombre} onChange={manejarCambio} required />
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="clienteId" className="form-label">Cliente *</label>
+                  <select id="clienteId" name="clienteId" className="form-select" value={form.clienteId} onChange={manejarCambio} required>
+                    <option value="">-- Elegí un cliente --</option>
+                    {clientesActivos.map((c) => (
+                      <option key={c.id} value={c.id}>{c.razonSocial}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-12">
+                  <label htmlFor="descripcion" className="form-label">Descripción</label>
+                  <input id="descripcion" name="descripcion" className="form-control" value={form.descripcion} onChange={manejarCambio} />
+                </div>
+                <div className="col-md-3">
+                  <label htmlFor="fechaInicio" className="form-label">Fecha de inicio *</label>
+                  <input id="fechaInicio" type="date" name="fechaInicio" className="form-control" value={form.fechaInicio} onChange={manejarCambio} required />
+                </div>
+                <div className="col-md-3">
+                  <label htmlFor="fechaFinEstimada" className="form-label">Fin estimada</label>
+                  <input id="fechaFinEstimada" type="date" name="fechaFinEstimada" className="form-control" value={form.fechaFinEstimada} onChange={manejarCambio} />
+                </div>
+                <div className="col-md-3">
+                  <label htmlFor="estado" className="form-label">Estado</label>
+                  <select id="estado" name="estado" className="form-select" value={form.estado} onChange={manejarCambio}>
+                    {ESTADOS.map((estado) => (
+                      <option key={estado} value={estado}>{estado}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-md-3">
+                  <label htmlFor="presupuestoVenta" className="form-label">Presupuesto de venta</label>
+                  <input id="presupuestoVenta" type="number" step="0.01" min="0.01" name="presupuestoVenta" className="form-control" value={form.presupuestoVenta} onChange={manejarCambio} />
+                </div>
+              </div>
+              <div className="mt-3">
+                <button type="submit" className="btn btn-primary">{editandoId ? 'Guardar cambios' : 'Crear proyecto'}</button>
+                <button type="button" className="btn btn-secondary ms-2" onClick={limpiarFormulario}>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {error && <div className="alert alert-danger">{error}</div>}
 
@@ -229,7 +255,7 @@ function Proyectos() {
               )}
               {proyectosFiltrados.map((p) => (
                 <tr key={p.id}>
-                  <td>{p.nombre}</td>
+                  <td className="fw-semibold">{p.nombre}</td>
                   <td>{p.cliente?.razonSocial}</td>
                   <td>{p.fechaInicio}</td>
                   <td>{p.fechaFinEstimada}</td>
